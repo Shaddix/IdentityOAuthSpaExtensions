@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using IdentityOAuthSpaExtensions.GrantValidators.Providers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -13,8 +14,10 @@ namespace IdentityOAuthSpaExtensions.GrantValidators
 
         public static void ConfigureExternalAuth(
             this IServiceCollection services,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            Action<ExternalAuthOptions> configureOptions = null)
         {
+            services.Configure<ExternalAuthOptions>(configureOptions);
             services.AddTransient<ExternalAuthService>();
             services.AddTransient<ExternalAuthenticatorProvider>();
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();

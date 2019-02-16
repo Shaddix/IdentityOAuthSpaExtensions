@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IdentityOAuthSpaExtensions.Example.IdentityServer;
 using IdentityOAuthSpaExtensions.GrantValidators;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -9,6 +10,9 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -40,8 +44,21 @@ namespace IdentityOAuthSpaExtensions.Example
                     options.ClientSecret = "0fd775ac8e566f0a113f096ce42cf63a";
                 })
                 ;
-            services.ConfigureExternalAuth(Configuration);
+            services.ConfigureExternalAuth(Configuration, x => { x.CreateUserIfNotFound = true; });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            services.AddDbContext<IdentityContext>(options => options
+                .UseInMemoryDatabase("OAuthTest"));
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<IdentityContext>()
+                .AddDefaultTokenProviders();
+            services.AddIdentityServer()
+                .AddDeveloperSigningCredential()
+                .AddInMemoryApiResources(Config.GetApiResources())
+                .AddInMemoryClients(Config.GetClients())
+                .AddAspNetIdentity<IdentityUser>()
+                .AddExtensionGrantValidator<ExternalAuthenticationGrantValidator<IdentityUser, string>>();
+            ;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -58,6 +75,7 @@ namespace IdentityOAuthSpaExtensions.Example
             }
 
             app.UseHttpsRedirection();
+            app.UseIdentityServer();
             app.UseAuthentication();
 
             app.UseStaticFiles();

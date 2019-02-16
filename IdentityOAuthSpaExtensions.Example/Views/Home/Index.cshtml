@@ -13,31 +13,45 @@
         <button onclick="GetOAuthCode('Google')">Google</button>
         <button onclick="GetOAuthCode('Facebook')">Facebook</button>
     </div>
-    
+
     <div>
         <h1>Sign-in via OAuth</h1>
         <button onclick="SignInVia('Google')">Google</button>
         <button onclick="SignInVia('Facebook')">Facebook</button>
     </div>
-    
-    
+
 
 </div>
 <script>
+    var _resolveOAuthPromise;
+    var _rejectOAuthPromise;
+
     function GetOAuthCode(provider) {
         window.removeEventListener("message", this.oAuthCodeReceived, false);
         window.addEventListener("message", this.oAuthCodeReceived, false);
-        
-        window.open(`${window.location.protocol}//${window.location.hostname}:${window.location.port}/external-auth/challenge?provider=${provider}`, undefined, 'width=800,height=600');
+        let promise = new Promise((resolve, reject) => {
+            _resolveOAuthPromise = resolve;
+            _rejectOAuthPromise = reject;
+
+            window.open(
+                `${window.location.protocol}//${window.location.hostname}:${window.location.port
+                }/external-auth/challenge?provider=${provider}`,
+                undefined,
+                'width=800,height=600');
+        });
+        return promise;
     }
-    
+
     function externalAuthSuccess(provider, code) {
+        _resolveOAuthPromise({ provider, code });
         alert(`Provider: ${provider}, code: ${code}`);
     }
+
     function externalAuthError(provider, error, errorDescription) {
+        _rejectOAuthPromise({ provider, error, errorDescription });
         alert(`Provider: ${provider}, error: ${error}, ${errorDescription}`);
     }
-    
+
     function oAuthCodeReceived(message) {
         if (message.data) {
             let data = JSON.parse(message.data);
@@ -50,11 +64,32 @@
             }
         }
     }
-    
+
     function SignInVia(provider) {
-        alert('signin');
+        GetOAuthCode(provider).then(function(data) {
+            GetAccessToken(data.provider, data.code);
+        });
     }
-    
+
+    function GetAccessToken(provider, code) {
+        let data = {
+            grant_type: 'external',
+            scope: 'api1 offline_access',
+            provider: provider,
+            code: code,
+        }
+
+        fetch(`/connect/token`,
+            {
+                method: 'POST',
+                body: `grant_type=external&scope=api1&provider=${provider}&code=${code}`,
+                headers: {
+                    'Authorization': `Basic Y2xpZW50OnNlY3JldA==`, //base64 encoded 'client:secret'
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            });
+    }
+
 </script>
 </body>
 </html>
