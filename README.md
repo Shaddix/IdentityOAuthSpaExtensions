@@ -15,11 +15,13 @@ The library is kept minimal, as we reuse all [official](https://docs.microsoft.c
 # How to
 Just install nuget to add the library to your project.
 
-You could also take a look at IdentityOAuthSpaExtensions.Example for example usage.
+You could also take a look at IdentityOAuthSpaExtensions.Example for example usage (keep in mind, that there are hardcoded ClientId/ClientSecret for FB and Google within Example app. They are for demo purposes and everyone can use them, so beware).
 
 ## Backend
-From `ConfigureServices` call `services.ConfigureExternalAuth(Configuration);`.
+From `ConfigureServices` call `services.ConfigureExternalAuth(Configuration)`.
+
 That's it.
+
 After that you will be able to request AuthCode from SPA (instructions below), and manually verify AuthCode on backend:
 `this.HttpContext.RequestServices.GetService<ExternalAuthService>().GetExternalUserId(providerName, authCode)`
 or
@@ -27,17 +29,17 @@ or
 
 # Frontend
 ## To get AuthCode:
--Create oAuthCode handlers, e.g.
-  `
+- Create oAuthCode handlers, e.g.
+  ```
     function externalAuthSuccess(provider, code) {
         alert(`Provider: ${provider}, code: ${code}`);
     }
     function externalAuthError(provider, error, errorDescription) {
         alert(`Provider: ${provider}, error: ${error}, ${errorDescription}`);
     }
-	`
--Subscribe to messages on a window: `window.addEventListener("message", this.oAuthCodeReceived, false);` and provide oAuthCodeReceived implementation like:
-    `function oAuthCodeReceived(message) {
+	```
+- Subscribe to messages on a window: `window.addEventListener("message", this.oAuthCodeReceived, false);` and provide oAuthCodeReceived implementation like:
+    ```function oAuthCodeReceived(message) {
         if (message.data) {
             let data = JSON.parse(message.data);
             if (data.type === 'oauth-result') {
@@ -48,10 +50,10 @@ or
                 }
             }
         }
-    }`
+    }```
 
 - Open authentication dialog in new window pointing to `http://YOUR_BACKEND_HOST/external-auth/challenge?provider=${provider}. E.g.:
-`window.open(`${window.location.protocol}//${window.location.hostname}:${window.location.port}/external-auth/challenge?provider=${provider}`, undefined, 'width=800,height=600');`
+```window.open(`${window.location.protocol}//${window.location.hostname}:${window.location.port}/external-auth/challenge?provider=${provider}`, undefined, 'width=800,height=600');```
 - When authentication succeeds/errors, your callback functions (externalAuthSuccess/externalAuthError) will be called.
 
 ## To authenticate (get access_token) using IdentityServer
