@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="IdentityModel" Version="3.10.5" />
+      <PackageReference Include="IdentityServer4" Version="2.3.2" />
+      <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.0" />
+      <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="2.2.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.OAuth" Version="2.2.0" />
+      <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="2.2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="oauth-result.html">
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </EmbeddedResource>
+    </ItemGroup>
+
+</Project>
