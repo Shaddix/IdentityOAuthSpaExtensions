@@ -14,6 +14,7 @@ The library is kept minimal, as we reuse all [official](https://docs.microsoft.c
 
 # How to
 Just install nuget to add the library to your project.
+```dotnet add package IdentityOAuthSpaExtensions```
 
 You could also take a look at IdentityOAuthSpaExtensions.Example for example usage (keep in mind, that there are hardcoded ClientId/ClientSecret for FB and Google within Example app. They are for demo purposes and everyone can use them, so beware).
 
@@ -38,7 +39,7 @@ or
         alert(`Provider: ${provider}, error: ${error}, ${errorDescription}`);
     }
 	```
-- Subscribe to messages on a window: `window.addEventListener("message", this.oAuthCodeReceived, false);` and provide oAuthCodeReceived implementation like:
+- Subscribe to messages on a window: ```window.addEventListener("message", this.oAuthCodeReceived, false);``` and provide oAuthCodeReceived implementation like:
     ```function oAuthCodeReceived(message) {
         if (message.data) {
             let data = JSON.parse(message.data);
@@ -52,13 +53,23 @@ or
         }
     }```
 
-- Open authentication dialog in new window pointing to `http://YOUR_BACKEND_HOST/external-auth/challenge?provider=${provider}. E.g.:
-```window.open(`${window.location.protocol}//${window.location.hostname}:${window.location.port}/external-auth/challenge?provider=${provider}`, undefined, 'width=800,height=600');```
+- Open authentication dialog in new window pointing to `http://YOUR_BACKEND_HOST/external-auth/challenge?provider=${provider}`. E.g.:
+```window.open(`${window.location.protocol}//${window.location.hostname}:${window.location.port}/external-auth/challenge?provider=${provider}`, undefined, 'toolbar=no,menubar=no,directories=no,status=no,width=800,height=600');```
 - When authentication succeeds/errors, your callback functions (externalAuthSuccess/externalAuthError) will be called.
 
 ## To authenticate (get access_token) using IdentityServer
 - Get AuthCode (see above)
-- Call `/connect/token?provider=${provider}&code=${code}&grant=external`. 
+- Call 
+```fetch(`/connect/token`,
+                {
+                    method: 'POST',
+                    body: `grant_type=external&scope=api1&provider=${provider}&code=${code}`,
+                    headers: {
+                        'Authorization': `Basic Y2xpZW50OnNlY3JldA==`, //base64 encoded 'client:secret'
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    }
+                })```
+		to obtain access_token, that you could later use in Authorization header.
 
 
 ## External user storage
