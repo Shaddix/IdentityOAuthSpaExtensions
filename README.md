@@ -14,9 +14,10 @@ The library is kept minimal, as we reuse all [official](https://docs.microsoft.c
 
 # How to
 Just install nuget to add the library to your project.
+
 ```dotnet add package IdentityOAuthSpaExtensions```
 
-You could also take a look at IdentityOAuthSpaExtensions.Example for example usage (keep in mind, that there are hardcoded ClientId/ClientSecret for FB and Google within Example app. They are for demo purposes and everyone can use them, so beware).
+You could also take a look at [IdentityOAuthSpaExtensions.Example](IdentityOAuthSpaExtensions.Example) for example usage (keep in mind, that there are hardcoded ClientId/ClientSecret for FB and Google within Example app. They are for demo purposes and everyone can use them, so beware).
 
 ## Backend
 From `ConfigureServices` call `services.ConfigureExternalAuth(Configuration)`.
@@ -60,7 +61,7 @@ or
 ## To authenticate (get access_token) using IdentityServer
 - Get AuthCode (see above)
 - Call 
-```fetch(`/connect/token`,
+```    fetch(`/connect/token`,
                 {
                     method: 'POST',
                     body: `grant_type=external&scope=api1&provider=${provider}&code=${code}`,
