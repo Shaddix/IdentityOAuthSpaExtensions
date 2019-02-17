@@ -70,7 +70,8 @@ or
                         'Authorization': `Basic Y2xpZW50OnNlY3JldA==`, //base64 encoded 'client:secret'
                         'Content-Type': 'application/x-www-form-urlencoded',
                     }
-                })```
+                })
+```
 		to obtain access_token, that you could later use in Authorization header.
 
 # Identity Server integration
