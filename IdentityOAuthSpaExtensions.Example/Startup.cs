@@ -59,7 +59,7 @@ namespace IdentityOAuthSpaExtensions.Example
                     options.ClientId = "2076005142436006";
                     options.ClientSecret = "0fd775ac8e566f0a113f096ce42cf63a";
                 });
-            services.ConfigureExternalAuth(Configuration, options => { options.CreateUserIfNotFound = true; });
+            services.ConfigureExternalAuth(Configuration);
 
             // if you want to secure some controllers/actions within the same project with JWT
             // you need to configure something like the following
