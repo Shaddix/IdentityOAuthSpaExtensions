@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -32,19 +33,6 @@ namespace IdentityOAuthSpaExtensions.Example
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAuthentication()
-                .AddGoogle(options =>
-                {
-                    options.ClientId = "497377001909-v63kflfb7gf26mmug97iinaqr80vr427.apps.googleusercontent.com";
-                    options.ClientSecret = "XfnbY7kdOqbAUdDrZoE4juwM";
-                })
-                .AddFacebook(options =>
-                {
-                    options.ClientId = "2076005142436006";
-                    options.ClientSecret = "0fd775ac8e566f0a113f096ce42cf63a";
-                })
-                ;
-            services.ConfigureExternalAuth(Configuration, x => { x.CreateUserIfNotFound = true; });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddDbContext<IdentityContext>(options => options
@@ -59,6 +47,34 @@ namespace IdentityOAuthSpaExtensions.Example
                 .AddAspNetIdentity<IdentityUser>()
                 .AddExtensionGrantValidator<ExternalAuthenticationGrantValidator<IdentityUser, string>>();
             ;
+
+            services.AddAuthentication()
+                .AddGoogle(options =>
+                {
+                    options.ClientId = "497377001909-v63kflfb7gf26mmug97iinaqr80vr427.apps.googleusercontent.com";
+                    options.ClientSecret = "XfnbY7kdOqbAUdDrZoE4juwM";
+                })
+                .AddFacebook(options =>
+                {
+                    options.ClientId = "2076005142436006";
+                    options.ClientSecret = "0fd775ac8e566f0a113f096ce42cf63a";
+                });
+            services.ConfigureExternalAuth(Configuration, options => { options.CreateUserIfNotFound = true; });
+
+            // if you want to secure some controllers/actions within the same project with JWT
+            // you need to configure something like the following
+            services.AddAuthentication(o =>
+                {
+                    o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                    o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                }).AddJwtBearer(
+                    options =>
+                    {
+                        options.Authority = "http://localhost:5000"; // this is a public host
+                        options.RequireHttpsMetadata = false;
+                        options.Audience = "api1";
+                    })
+                ;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

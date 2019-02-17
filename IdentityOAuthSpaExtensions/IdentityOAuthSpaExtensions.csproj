@@ -2,6 +2,13 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp2.2</TargetFramework>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageVersion>0.1.2</PackageVersion>
+        <Title>IdentityOAuthSpaExtensions</Title>
+        <Authors>Artur Drobinskiy</Authors>
+        <Description>Allows easy integration of external OAuth providers into your SPA</Description>
+        <RepositoryUrl>https://github.com/Shaddix/IdentityOAuthSpaExtensions</RepositoryUrl>
+        <RepositoryType>GitHub</RepositoryType>
     </PropertyGroup>
 
     <ItemGroup>

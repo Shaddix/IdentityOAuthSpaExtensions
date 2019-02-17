@@ -19,12 +19,16 @@
         <button onclick="SignInVia('Google')">Google</button>
         <button onclick="SignInVia('Facebook')">Facebook</button>
     </div>
-
+    <div>
+        <h1>Values</h1>
+        <button onclick="GetValues()">Get Values</button>
+    </div>
 
 </div>
 <script>
     var _resolveOAuthPromise;
     var _rejectOAuthPromise;
+    var _accessToken;
 
     function GetOAuthCode(provider) {
         window.removeEventListener("message", this.oAuthCodeReceived, false);
@@ -37,7 +41,7 @@
                 `${window.location.protocol}//${window.location.hostname}:${window.location.port
                 }/external-auth/challenge?provider=${provider}`,
                 undefined,
-                'width=800,height=600');
+                'toolbar=no,menubar=no,directories=no,status=no,width=800,height=600');
         });
         return promise;
     }
@@ -72,20 +76,45 @@
     }
 
     function GetAccessToken(provider, code) {
-        let data = {
-            grant_type: 'external',
-            scope: 'api1 offline_access',
-            provider: provider,
-            code: code,
-        }
 
         fetch(`/connect/token`,
-            {
-                method: 'POST',
-                body: `grant_type=external&scope=api1&provider=${provider}&code=${code}`,
-                headers: {
-                    'Authorization': `Basic Y2xpZW50OnNlY3JldA==`, //base64 encoded 'client:secret'
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                {
+                    method: 'POST',
+                    body: `grant_type=external&scope=api1&provider=${provider}&code=${code}`,
+                    headers: {
+                        'Authorization': `Basic Y2xpZW50OnNlY3JldA==`, //base64 encoded 'client:secret'
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    }
+                })
+            .then(response => response.json())
+            .then(dt => {
+                _accessToken = dt.access_token;
+                alert(`access_code: ${dt.access_token}`);
+            });
+    }
+
+    function GetValues() {
+        fetch(`/api/values`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${_accessToken}`,
+                        'Content-Type': 'application/json;'
+                    }
+                })
+            .catch(error => {
+                alert(error);
+            })
+            .then(response => {
+                if (!response.ok) {
+                    alert('error');
+                    return null;
+                }
+                return response.json();
+            })
+            .then(dt => {
+                if (dt != null) {
+                    console.log(dt);
+                    alert(dt);
                 }
             });
     }

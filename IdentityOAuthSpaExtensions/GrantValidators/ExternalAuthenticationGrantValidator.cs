@@ -36,7 +36,7 @@ namespace IdentityOAuthSpaExtensions.GrantValidators
             _logger = logger;
         }
 
-        public async Task ValidateAsync(ExtensionGrantValidationContext context)
+        public virtual async Task ValidateAsync(ExtensionGrantValidationContext context)
         {
             var oAuthCode = context.Request.Raw.Get("code");
             var providerName = context.Request.Raw.Get("provider");
@@ -110,12 +110,29 @@ namespace IdentityOAuthSpaExtensions.GrantValidators
             return CreateValidationResultForUser(user);
         }
 
+        /// <summary>
+        /// If you have configured CreateUserIfNotFound to be true,
+        /// this function will be called for every new user to be created.
+        /// You could override it and provide your own implementation.
+        /// </summary>
+        /// <param name="externalUserInfo">User information from OAuth provider</param>
         protected virtual TUser CreateNewUser(ExternalUserInfo externalUserInfo)
         {
             return new TUser()
             {
-                UserName = externalUserInfo.Id,
+                UserName = GetUserName(externalUserInfo),
             };
+        }
+
+        /// <summary>
+        /// ASP.Net Identity requires UserName field to be filled.
+        /// So you have to provide UserName for newly created users.
+        /// By default it's externalUserInfo.Id.
+        /// </summary>
+        /// <param name="externalUserInfo">User information from OAuth provider</param>
+        protected virtual string GetUserName(ExternalUserInfo externalUserInfo)
+        {
+            return externalUserInfo.Id;
         }
 
         protected virtual GrantValidationResult CreateValidationResultForUser(TUser user)
@@ -129,6 +146,11 @@ namespace IdentityOAuthSpaExtensions.GrantValidators
                 });
         }
 
+        /// <summary>
+        /// Returns the GrantValidationResult that should be returned to the Client
+        /// when User was either unauthorized on OAuth provider,
+        /// or we were unable to find it in local UserManager
+        /// </summary>
         protected virtual GrantValidationResult GetExternalUserNotFound()
         {
             return new GrantValidationResult(
@@ -136,6 +158,6 @@ namespace IdentityOAuthSpaExtensions.GrantValidators
                 "login_external_UserNotFound");
         }
 
-        public string GrantType => ExternalAuthExtensions.GrantType;
+        public virtual string GrantType => ExternalAuthExtensions.GrantType;
     }
 }
