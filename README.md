@@ -41,7 +41,8 @@ or
     }
 	```
 - Subscribe to messages on a window: ```window.addEventListener("message", this.oAuthCodeReceived, false);``` and provide oAuthCodeReceived implementation like:
-    ```function oAuthCodeReceived(message) {
+```
+    function oAuthCodeReceived(message) {
         if (message.data) {
             let data = JSON.parse(message.data);
             if (data.type === 'oauth-result') {
