@@ -52,7 +52,8 @@ or
                 }
             }
         }
-    }```
+    }
+```
 
 - Open authentication dialog in new window pointing to `http://YOUR_BACKEND_HOST/external-auth/challenge?provider=${provider}`. E.g.:
 ```window.open(`${window.location.protocol}//${window.location.hostname}:${window.location.port}/external-auth/challenge?provider=${provider}`, undefined, 'toolbar=no,menubar=no,directories=no,status=no,width=800,height=600');```
@@ -72,7 +73,7 @@ or
                     }
                 })
 ```
-		to obtain access_token, that you could later use in Authorization header.
+to obtain access_token, that you could later use in Authorization header.
 
 # Identity Server integration
 ## Adding external grant (validate Auth Code and issue own JWT)
