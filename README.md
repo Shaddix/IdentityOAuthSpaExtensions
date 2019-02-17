@@ -61,7 +61,8 @@ or
 ## To authenticate (get access_token) using IdentityServer
 - Get AuthCode (see above)
 - Call 
-```    fetch(`/connect/token`,
+ ```
+    fetch(`/connect/token`,
                 {
                     method: 'POST',
                     body: `grant_type=external&scope=api1&provider=${provider}&code=${code}`,
@@ -72,6 +73,23 @@ or
                 })```
 		to obtain access_token, that you could later use in Authorization header.
 
+# Identity Server integration
+## Adding external grant (validate Auth Code and issue own JWT)
+Typical scenario is that you use oAuth for authentication only, and then create the user in your local DB (via e.g. IdentityServer) and issue your own JWT with custom claims for later authorization.
+This library perfectly supports this scenario in combination with [IdentityServer](https://docs.identityserver.io) using extension grants (https://docs.identityserver.io/en/latest/topics/grant_types.html#extension-grants).
+To integrate with IdentityServer all you need to do is call
+```services.AddIdentityServer().AddExtensionGrantValidator<ExternalAuthenticationGrantValidator<IdentityUser, string>>()```.
+That will register an extension grant named `external` and you could authenticate from JS as [described above](#to-authenticate-get-access_token-using-identityserver)
+
+### Configuration
+By default, `ExternalAuthenticationGrantValidator` is configured to create new users automatically, when they successfully authenticate via oAuth. You could change that behavior by setting:
+```services.ConfigureExternalAuth(Configuration, options => { options.CreateUserIfNotFound = false; });```.
+
+### Customization
+You could inherit from `ExternalAuthenticationGrantValidator<IdentityUser, string>` and provide your custom logic for any of the following methods:
+- `CreateNewUser` - fill-in the fields of new User based on your business requirements and/or information received from oAuth provider
+- `CreateResultForLocallyNotFoundUser` - here you could write your own business logic, regarding what to do when the user is logging in for the first time. You could write custom logic for user creation, or deny some users (based on email/id) from logging in.
+- `GetUserName` - most useful if you don't override `CreateNewUser`. You could provide Username for newly created users based on oAuth provider info
 
 ## External user storage
 We use standard Asp.Net Identity mechanism to store external logins (namely, `AspNetUserLogins` table). To find a user by external OAuth id you need to use `_userManager.FindByLoginAsync(providerName, externalUserId)`
