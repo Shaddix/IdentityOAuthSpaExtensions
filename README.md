@@ -22,7 +22,7 @@ You could also take a look at [IdentityOAuthSpaExtensions.Example](IdentityOAuth
 ## Backend
 From `ConfigureServices` call `services.ConfigureExternalAuth(Configuration)`.
 
-That's it.
+That's it. Just `.AddAuthentication.AddGoogle()` or `.AddFacebook()` to make it work. Follow instructions on how to set up applications on OAuth provider side. You should specify `https://YOUR_BACKEND/external-auth/callback-{providerName}` as a return URL (`https://YOUR_BACKEND/external-auth/callback-Google`, `https://YOUR_BACKEND/external-auth/callback-Facebook`, etc.)
 
 After that you will be able to request AuthCode from SPA (instructions below), and manually verify AuthCode on backend:
 `this.HttpContext.RequestServices.GetService<ExternalAuthService>().GetExternalUserId(providerName, authCode)`
