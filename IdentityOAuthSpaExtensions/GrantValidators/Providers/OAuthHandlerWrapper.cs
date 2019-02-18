@@ -1,8 +1,12 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
 {
@@ -35,8 +39,27 @@ namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
             return await result;
         }
 
-        public string BuildChallengeUrl(AuthenticationProperties properties, string redirectUri)
+        public virtual async Task<string> BuildChallengeUrl(AuthenticationProperties properties, string redirectUri)
         {
+            if (_authHandler is OpenIdConnectHandler idConnectHandler)
+            {
+                var configuration =
+                    await idConnectHandler.Options.ConfigurationManager.GetConfigurationAsync(
+                        new CancellationToken());
+                var idConnectMessage = new OpenIdConnectMessage();
+                idConnectMessage.ClientId = idConnectHandler.Options.ClientId;
+                idConnectMessage.EnableTelemetryParameters = !idConnectHandler.Options.DisableTelemetry;
+                idConnectMessage.IssuerAddress = configuration?.AuthorizationEndpoint ?? string.Empty;
+                idConnectMessage.RedirectUri = redirectUri;
+                idConnectMessage.Resource = idConnectHandler.Options.Resource;
+                idConnectMessage.ResponseType = idConnectHandler.Options.ResponseType;
+                idConnectMessage.Prompt = properties.GetParameter<string>("prompt") ?? idConnectHandler.Options.Prompt;
+                idConnectMessage.Scope = string.Join(" ", (IEnumerable<string>) (properties.GetParameter<ICollection<string>>("scope") ?? idConnectHandler.Options.Scope));
+                                
+                return idConnectMessage.CreateAuthenticationRequestUrl();
+            }
+
+            _authHandler.ChallengeAsync(properties).GetAwaiter().GetResult();
             var method = _authHandler.GetType()
                 .GetMethod("BuildChallengeUrl", BindingFlags.NonPublic | BindingFlags.Instance);
             var result = (string) method.Invoke(_authHandler, new object[] {properties, redirectUri});

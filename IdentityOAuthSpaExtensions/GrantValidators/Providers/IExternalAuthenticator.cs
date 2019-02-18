@@ -13,7 +13,7 @@ namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
             OAuthTokenResponse tokens);
 
         Task<OAuthTokenResponse> ExchangeCodeAsync(string code, string redirectUrl);
-        string BuildChallengeUrl(AuthenticationProperties properties, string redirectUri);
+        Task<string> BuildChallengeUrl(AuthenticationProperties properties, string redirectUri);
         OAuthOptions Options { get; }
     }
 }

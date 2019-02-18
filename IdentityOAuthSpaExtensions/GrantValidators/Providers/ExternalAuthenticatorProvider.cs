@@ -36,6 +36,12 @@ namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
 
             if (provider is IAuthenticationHandler authHandler)
             {
+                if (!IsOAuthHandler(authHandler))
+                {
+                    throw new InvalidOperationException(
+                        $"Auth Provider is of invalid type '{provider.GetType()}'. Only OAuthHandler providers are supported");                    
+                }
+                
                 await authHandler.InitializeAsync(
                     //new AuthenticationScheme(scheme.Name, scheme.Name, provider.GetType()),
                     scheme.Build(),
@@ -46,6 +52,18 @@ namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
 
             throw new InvalidOperationException(
                 $"Auth Provider is of invalid type '{provider.GetType()}'. Only IAuthenticationHandler providers are supported");
+        }
+
+        private bool IsOAuthHandler(IAuthenticationHandler provider)
+        {
+            var type = provider.GetType();
+            while (type != null && !type.FullName.StartsWith("Microsoft.AspNetCore.Authentication.OAuth.OAuthHandler"))
+                type = type.BaseType;
+
+            if (type == null)
+                return false;
+            
+            return true;
         }
     }
 }

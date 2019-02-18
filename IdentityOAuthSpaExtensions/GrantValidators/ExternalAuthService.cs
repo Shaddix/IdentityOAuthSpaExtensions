@@ -39,7 +39,7 @@ namespace IdentityOAuthSpaExtensions.GrantValidators
             };
 
             var providerInstance = await _externalAuthenticatorProvider.GetAuthenticator(provider);
-            var uri = providerInstance.BuildChallengeUrl(props, absoluteCallbackUri);
+            var uri = await providerInstance.BuildChallengeUrl(props, absoluteCallbackUri);
 
             return uri;
         }

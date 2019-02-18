@@ -17,7 +17,7 @@ namespace IdentityOAuthSpaExtensions.GrantValidators
             IConfiguration configuration,
             Action<ExternalAuthOptions> configureOptions = null)
         {
-            services.Configure<ExternalAuthOptions>(configureOptions);
+            services.Configure<ExternalAuthOptions>(configureOptions ??  (options => { }));
             services.AddTransient<ExternalAuthService>();
             services.AddTransient<ExternalAuthenticatorProvider>();
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
