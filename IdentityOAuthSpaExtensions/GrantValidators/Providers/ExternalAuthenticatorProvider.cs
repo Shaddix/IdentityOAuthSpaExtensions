@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
@@ -36,14 +37,13 @@ namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
 
             if (provider is IAuthenticationHandler authHandler)
             {
-                if (!IsOAuthHandler(authHandler))
+                if (!IsOAuthHandler(authHandler) && !(authHandler is OpenIdConnectHandler))
                 {
                     throw new InvalidOperationException(
-                        $"Auth Provider is of invalid type '{provider.GetType()}'. Only OAuthHandler providers are supported");                    
+                        $"Auth Provider is of invalid type '{provider.GetType()}'. Only OAuthHandler and OpenIdConnectHandler providers are supported");                    
                 }
                 
                 await authHandler.InitializeAsync(
-                    //new AuthenticationScheme(scheme.Name, scheme.Name, provider.GetType()),
                     scheme.Build(),
                     httpContext);
 
@@ -56,8 +56,12 @@ namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
 
         private bool IsOAuthHandler(IAuthenticationHandler provider)
         {
-            var type = provider.GetType();
-            while (type != null && !type.FullName.StartsWith("Microsoft.AspNetCore.Authentication.OAuth.OAuthHandler"))
+            return IsDescendantOf(provider, "Microsoft.AspNetCore.Authentication.OAuth.OAuthHandler");
+        }        
+        private bool IsDescendantOf(object obj, string typeName)
+        {
+            var type = obj.GetType();
+            while (type != null && !type.FullName.StartsWith(typeName))
                 type = type.BaseType;
 
             if (type == null)

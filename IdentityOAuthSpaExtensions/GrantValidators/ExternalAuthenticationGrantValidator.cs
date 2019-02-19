@@ -93,7 +93,7 @@ namespace IdentityOAuthSpaExtensions.GrantValidators
                 return GetExternalUserNotFound();
             }
 
-            var user = CreateNewUser(externalUserInfo);
+            var user = await CreateNewUser(externalUserInfo);
             var createResult = await _userManager.CreateAsync(user);
             if (!createResult.Succeeded)
             {
@@ -116,7 +116,7 @@ namespace IdentityOAuthSpaExtensions.GrantValidators
         /// You could override it and provide your own implementation.
         /// </summary>
         /// <param name="externalUserInfo">User information from OAuth provider</param>
-        protected virtual TUser CreateNewUser(ExternalUserInfo externalUserInfo)
+        protected virtual async Task<TUser> CreateNewUser(ExternalUserInfo externalUserInfo)
         {
             return new TUser()
             {

@@ -6,5 +6,6 @@ namespace IdentityOAuthSpaExtensions.GrantValidators
     {
         public string Id { get; set; }
         public AuthenticationTicket Ticket { get; set; }
+        public string ProviderName { get; set; }
     }
 }

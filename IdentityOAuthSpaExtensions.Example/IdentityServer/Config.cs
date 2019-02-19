@@ -13,6 +13,7 @@ namespace IdentityOAuthSpaExtensions.Example.IdentityServer
                 new Client
                 {
                     ClientId = "client",
+                    AllowOfflineAccess = true,
                     AllowedGrantTypes = new[]
                     {
                         GrantType.ClientCredentials,

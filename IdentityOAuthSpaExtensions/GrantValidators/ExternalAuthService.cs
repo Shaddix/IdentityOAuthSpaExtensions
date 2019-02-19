@@ -75,7 +75,7 @@ namespace IdentityOAuthSpaExtensions.GrantValidators
             var userInfo = await GetExternalUserInfo(provider, code);
             return userInfo.Id;
         }
-        
+
         public virtual async Task<ExternalUserInfo> GetExternalUserInfo(string provider, string code)
         {
             var absoluteCallbackUri = GetCallbackUrl(provider);
@@ -92,7 +92,8 @@ namespace IdentityOAuthSpaExtensions.GrantValidators
 
             return new ExternalUserInfo
             {
-                Id= userIdClaim.Value,
+                Id = userIdClaim.Value,
+                ProviderName = provider,
                 Ticket = ticket,
             };
         }
