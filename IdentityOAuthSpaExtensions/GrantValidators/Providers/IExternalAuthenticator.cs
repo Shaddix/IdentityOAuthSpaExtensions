@@ -14,6 +14,6 @@ namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
 
         Task<OAuthTokenResponse> ExchangeCodeAsync(string code, string redirectUrl);
         Task<string> BuildChallengeUrl(AuthenticationProperties properties, string redirectUri);
-        OAuthOptions Options { get; }
+        ISecureDataFormat<AuthenticationProperties> StateDataFormat { get; }
     }
 }

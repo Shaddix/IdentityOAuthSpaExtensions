@@ -48,7 +48,7 @@ namespace IdentityOAuthSpaExtensions.GrantValidators
         {
             var context = _httpContextAccessor.HttpContext;
             var url = _linkGenerator.GetPathByAction(context,
-                nameof(ExternalAuthController.ChallengeCallback),
+                nameof(ExternalAuthController.ChallengeCallbackGet),
                 nameof(ExternalAuthController).Replace("Controller", ""),
                 new
                 {
@@ -65,8 +65,7 @@ namespace IdentityOAuthSpaExtensions.GrantValidators
         public virtual async Task<AuthenticationProperties> Unprotect(string provider, string state)
         {
             var providerInstance = await _externalAuthenticatorProvider.GetAuthenticator(provider);
-            var options = providerInstance.Options;
-            var authOptions = options.StateDataFormat.Unprotect(state);
+            var authOptions = providerInstance.StateDataFormat.Unprotect(state);
             return authOptions;
         }
 

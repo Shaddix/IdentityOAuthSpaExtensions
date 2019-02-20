@@ -37,17 +37,30 @@ namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
 
             if (provider is IAuthenticationHandler authHandler)
             {
-                if (!IsOAuthHandler(authHandler) && !(authHandler is OpenIdConnectHandler))
-                {
-                    throw new InvalidOperationException(
-                        $"Auth Provider is of invalid type '{provider.GetType()}'. Only OAuthHandler and OpenIdConnectHandler providers are supported");                    
-                }
-                
                 await authHandler.InitializeAsync(
                     scheme.Build(),
                     httpContext);
 
-                return new OAuthHandlerWrapper(authHandler);
+                if (provider is PolicySchemeHandler policySchemeHandler)
+                {
+                    if (!string.IsNullOrEmpty(policySchemeHandler.Options.ForwardChallenge))
+                    {
+                        return await GetAuthenticator(policySchemeHandler.Options.ForwardChallenge);
+                    }
+                }
+
+                if (IsOAuthHandler(authHandler))
+                {
+                    return new OAuthHandlerWrapper(authHandler);
+                }
+
+                if (authHandler is OpenIdConnectHandler openIdConnectHandler)
+                {
+                    return new OpenIdHandlerWrapper(openIdConnectHandler);
+                }
+
+                throw new InvalidOperationException(
+                    $"Auth Provider is of invalid type '{provider.GetType()}'. Only OAuthHandler and OpenIdConnectHandler providers are supported");
             }
 
             throw new InvalidOperationException(
@@ -57,7 +70,7 @@ namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
         private bool IsOAuthHandler(IAuthenticationHandler provider)
         {
             return IsDescendantOf(provider, "Microsoft.AspNetCore.Authentication.OAuth.OAuthHandler");
-        }        
+        }
         private bool IsDescendantOf(object obj, string typeName)
         {
             var type = obj.GetType();
@@ -66,7 +79,7 @@ namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
 
             if (type == null)
                 return false;
-            
+
             return true;
         }
     }

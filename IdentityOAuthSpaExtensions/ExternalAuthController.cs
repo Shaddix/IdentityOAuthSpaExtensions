@@ -46,10 +46,22 @@ namespace IdentityOAuthSpaExtensions
 
         [HttpGet("callback-{provider}")]
         [AllowAnonymous]
+        public async Task<IActionResult> ChallengeCallbackGet(string provider, string state, string code)
+        {
+            return await ChallengeCallback(provider, state, code);
+        }
+
+        [HttpPost("callback-{provider}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ChallengeCallbackPost(string provider, [FromForm]string state, [FromForm]string code)
+        {
+            return await ChallengeCallback(provider, state, code);
+        }
+
         public async Task<IActionResult> ChallengeCallback(string provider, string state, string code)
         {
             //later we could do:
-            //var userId = await _externalAuthService.GetExternalUserId(provider, code);
+            //var userId = await _externalAuthService.GetExternalUserInfo(provider, code);
             var authOptions = await _externalAuthService.Unprotect(provider, state);
 
             var uriBuilder = new UriBuilder(authOptions.RedirectUri);
