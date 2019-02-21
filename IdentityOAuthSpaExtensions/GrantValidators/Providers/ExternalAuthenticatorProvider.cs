@@ -56,7 +56,7 @@ namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
 
                 if (authHandler is OpenIdConnectHandler openIdConnectHandler)
                 {
-                    return new OpenIdHandlerWrapper(openIdConnectHandler);
+                    return new OpenIdHandlerWrapper(openIdConnectHandler, _httpContextAccessor);
                 }
 
                 throw new InvalidOperationException(

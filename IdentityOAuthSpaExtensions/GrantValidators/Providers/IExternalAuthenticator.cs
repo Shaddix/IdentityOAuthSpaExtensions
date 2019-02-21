@@ -7,13 +7,8 @@ namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
 {
     public interface IExternalAuthenticator
     {
-        Task<AuthenticationTicket> CreateTicketAsync(
-            ClaimsIdentity identity,
-            AuthenticationProperties properties,
-            OAuthTokenResponse tokens);
-
-        Task<OAuthTokenResponse> ExchangeCodeAsync(string code, string redirectUrl);
         Task<string> BuildChallengeUrl(AuthenticationProperties properties, string redirectUri);
         ISecureDataFormat<AuthenticationProperties> StateDataFormat { get; }
+        Task<AuthenticationTicket> GetTicket(string code, string absoluteCallbackUri);
     }
 }

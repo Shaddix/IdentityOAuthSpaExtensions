@@ -80,11 +80,8 @@ namespace IdentityOAuthSpaExtensions.GrantValidators
             var absoluteCallbackUri = GetCallbackUrl(provider);
 
             var providerInstance = await _externalAuthenticatorProvider.GetAuthenticator(provider);
-            var oauthToken = await providerInstance.ExchangeCodeAsync(code, absoluteCallbackUri);
-
-            var identity = new ClaimsIdentity("");
-            var ticket = await providerInstance.CreateTicketAsync(identity, new AuthenticationProperties(), oauthToken);
-
+            var ticket = await providerInstance.GetTicket(code, absoluteCallbackUri);
+           
             var userIdClaim = ticket.Principal.FindFirst(JwtClaimTypes.Subject) ??
                               ticket.Principal.FindFirst(ClaimTypes.NameIdentifier) ??
                               throw new Exception("Unknown userid");

@@ -48,6 +48,15 @@ namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
         }
 
         public ISecureDataFormat<AuthenticationProperties> StateDataFormat => Options.StateDataFormat;
+        public async Task<AuthenticationTicket> GetTicket(string code, string absoluteCallbackUri)
+        {
+            var oauthToken = await ExchangeCodeAsync(code, absoluteCallbackUri);
+
+            var identity = new ClaimsIdentity("");
+            var ticket = await CreateTicketAsync(identity, new AuthenticationProperties(), oauthToken);
+
+            return ticket;
+        }
 
         public OAuthOptions Options
         {

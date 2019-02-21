@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading;
@@ -7,6 +9,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
@@ -14,77 +19,108 @@ namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
     public class OpenIdHandlerWrapper : IExternalAuthenticator
     {
         private readonly OpenIdConnectHandler _authHandler;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public OpenIdHandlerWrapper(OpenIdConnectHandler authHandler)
+        public OpenIdHandlerWrapper(OpenIdConnectHandler authHandler,
+            IHttpContextAccessor httpContextAccessor)
         {
             _authHandler = authHandler;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<AuthenticationTicket> CreateTicketAsync(
-            ClaimsIdentity identity,
-            AuthenticationProperties properties,
-            OAuthTokenResponse tokens)
+        public async Task<HandleRequestResult> HandleRemoteAuthenticateAsync()
         {
             var method = _authHandler.GetType()
-                .GetMethod("CreateTicketAsync", BindingFlags.NonPublic | BindingFlags.Instance);
-            var result =
-                (Task<AuthenticationTicket>)method.Invoke(_authHandler, new object[] { identity, properties, tokens });
-            return await result;
-        }
-
-        public async Task<OAuthTokenResponse> ExchangeCodeAsync(string code, string redirectUrl)
-        {
-            var method = _authHandler.GetType()
-                .GetMethod("ExchangeCodeAsync", BindingFlags.NonPublic | BindingFlags.Instance);
-            var result = (Task<OAuthTokenResponse>)method.Invoke(_authHandler, new object[] { code, redirectUrl });
+                .GetMethod("HandleRemoteAuthenticateAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+            var result = (Task<HandleRequestResult>) method.Invoke(_authHandler, new object[] { });
             return await result;
         }
 
         public virtual async Task<string> BuildChallengeUrl(AuthenticationProperties properties, string redirectUri)
         {
-            var url = await BuildChallengeUrlForIdConnect(_authHandler, properties, redirectUri);
+            var request = _httpContextAccessor.HttpContext.Request;
+            var httpContext = new DefaultHttpContext()
+            {
+                Request =
+                {
+                    Scheme = request.Scheme,
+                    Host = request.Host,
+                }
+            };
+            SetContext(httpContext);
+
+            var oldCallbackPath = _authHandler.Options.CallbackPath;
+            var newCallbackPath = new Uri(redirectUri).PathAndQuery;
+            _authHandler.Options.CallbackPath = newCallbackPath;
+            _authHandler.Options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
+            try
+            {
+                await _authHandler.ChallengeAsync(properties);
+            }
+            finally
+            {
+                _authHandler.Options.CallbackPath = oldCallbackPath;
+            }
+
+            var url = httpContext.Response.Headers["Location"].ToString();
+            var cookies = httpContext.Response.Headers["Set-Cookie"].ToString();
+            cookies = cookies.Replace(newCallbackPath, "/");
+            _httpContextAccessor.HttpContext.Response.Headers.Add("Set-Cookie", cookies);
             return url;
         }
 
         public ISecureDataFormat<AuthenticationProperties> StateDataFormat => Options.StateDataFormat;
 
-        private async Task<string> BuildChallengeUrlForIdConnect(OpenIdConnectHandler idConnectHandler,
-            AuthenticationProperties properties, string redirectUri)
+        public async Task<AuthenticationTicket> GetTicket(string code, string absoluteCallbackUri)
         {
-            // ReSharper disable once InconsistentNaming
-            // ReSharper disable once LocalVariableHidesMember
-            var Options = idConnectHandler.Options;
-
-            var configuration =
-                await idConnectHandler.Options.ConfigurationManager.GetConfigurationAsync(
-                    new CancellationToken());
-
-            var message = new OpenIdConnectMessage
+            StubRequest(code, absoluteCallbackUri);
+            var result = await HandleRemoteAuthenticateAsync();
+            if (!result.Succeeded)
             {
-                ClientId = Options.ClientId,
-                EnableTelemetryParameters = !Options.DisableTelemetry,
-                IssuerAddress = configuration?.AuthorizationEndpoint ?? string.Empty,
-                RedirectUri = redirectUri,
-                Resource = Options.Resource,
-                ResponseType = OpenIdConnectResponseType.CodeIdToken,
-                Prompt = properties.GetParameter<string>(OpenIdConnectParameterNames.Prompt) ?? Options.Prompt,
-                Scope = string.Join(" ", properties.GetParameter<ICollection<string>>(OpenIdConnectParameterNames.Scope) ?? Options.Scope),
-            };
-            if (!string.Equals(Options.ResponseType, OpenIdConnectResponseType.Code, StringComparison.Ordinal) ||
-                !string.Equals(Options.ResponseMode, OpenIdConnectResponseMode.Query, StringComparison.Ordinal))
-            {
-                message.ResponseMode = Options.ResponseMode;
+                throw new Exception("Authentication failed", result.Failure);
             }
 
-            if (idConnectHandler.Options.ProtocolValidator.RequireNonce)
+            return result.Ticket;
+        }
+
+        private void StubRequest(string code, string absoluteCallbackUrl)
+        {
+            var context = new DefaultHttpContext();
+            var request = (DefaultHttpRequest) context.Request;
+            request.Method = "POST";
+            request.ContentType = "application/x-www-form-urlencoded";
+            var xsrfValue = Guid.NewGuid().ToString();
+            var authenticationProperties = new AuthenticationProperties(new Dictionary<string, string>()
             {
-                message.Nonce = idConnectHandler.Options.ProtocolValidator.GenerateNonce();
-            }
+                {".xsrf", xsrfValue},
+                {OpenIdConnectDefaults.RedirectUriForCodePropertiesKey, absoluteCallbackUrl}
+            });
+            var xsrfCookieName = Options.CorrelationCookie.Name + _authHandler.Scheme.Name + "." + xsrfValue;
 
-            properties.Items.Add(OpenIdConnectDefaults.RedirectUriForCodePropertiesKey, properties.RedirectUri);
-            message.State = Options.StateDataFormat.Protect(properties);
+            var cookies =
+                _httpContextAccessor.HttpContext.Request.Cookies.ToDictionary(x => x.Key, x => x.Value);
+            cookies[xsrfCookieName] = "N";
+            request.Cookies = new RequestCookieCollection(cookies);
 
-            return message.CreateAuthenticationRequestUrl();
+            request.Form = new FormCollection(new Dictionary<string, StringValues>()
+            {
+                {"code", code},
+                {"state", Options.StateDataFormat.Protect(authenticationProperties)},
+            });
+            SetContext(context);
+        }
+
+        private void SetContext(HttpContext context)
+        {
+            var type = _authHandler.GetType();
+            while (!type.Name.StartsWith("AuthenticationHandler"))
+                type = type.BaseType;
+
+            var property = type
+                .GetProperty("Context", BindingFlags.NonPublic | BindingFlags.Instance);
+            property.SetValue(_authHandler, context,
+                BindingFlags.NonPublic | BindingFlags.SetProperty | BindingFlags.Instance, null, new object[] { },
+                CultureInfo.CurrentCulture);
         }
 
         public OpenIdConnectOptions Options => _authHandler.Options;
