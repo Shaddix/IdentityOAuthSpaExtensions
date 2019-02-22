@@ -1,23 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿
 using IdentityOAuthSpaExtensions.Example.IdentityServer;
 using IdentityOAuthSpaExtensions.GrantValidators;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.AzureAD.UI;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace IdentityOAuthSpaExtensions.Example
 {
@@ -64,6 +56,17 @@ namespace IdentityOAuthSpaExtensions.Example
                     options.ClientId = "ab2ce88f-efef-49c5-b89f-87a87b7dfc2c";
                     options.ClientSecret = "wfileLMHY~_~hcONF32735{";
                 })
+                .AddGitHub(options =>
+                {
+                    options.ClientId = "eaf89b3779c82f5a0d65";
+                    options.ClientSecret = "baf6e9860dce3dab94a356acd0ce8024d2ee1fd2";
+                })
+                .AddTwitter(options =>
+                {
+                    options.ConsumerKey = "SOxtwARctjMn5ZYouNTcBopMs";
+                    options.ConsumerSecret = "f8ZyXWxa7VVdU79cS3KM7hUlx0Z15pmTkCxispLU4JrKkA8B4E";
+                })
+                
                 ;
             services.ConfigureExternalAuth(Configuration);
 

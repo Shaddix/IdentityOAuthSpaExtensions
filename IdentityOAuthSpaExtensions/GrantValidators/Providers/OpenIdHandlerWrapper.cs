@@ -47,24 +47,20 @@ namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
                     Host = request.Host,
                 }
             };
-            SetContext(httpContext);
+            _authHandler.SetHttpContext(httpContext);
 
-            var oldCallbackPath = _authHandler.Options.CallbackPath;
+            var oldOptions = _authHandler.Options;
+            var newOptions = _authHandler.Options.MemberwiseClone();
             var newCallbackPath = new Uri(redirectUri).PathAndQuery;
-            _authHandler.Options.CallbackPath = newCallbackPath;
-            _authHandler.Options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
-            try
-            {
-                await _authHandler.ChallengeAsync(properties);
-            }
-            finally
-            {
-                _authHandler.Options.CallbackPath = oldCallbackPath;
-            }
+            newOptions.CallbackPath = newCallbackPath;
+            newOptions.ResponseType = OpenIdConnectResponseType.CodeIdToken;
+            _authHandler.SetOptions(newOptions);
+
+            await _authHandler.ChallengeAsync(properties);
 
             var url = httpContext.Response.Headers["Location"].ToString();
             var cookies = httpContext.Response.Headers["Set-Cookie"].ToString();
-            cookies = cookies.Replace(newCallbackPath, "/");
+            cookies = cookies.Replace(oldOptions.CallbackPath.ToString(), "/");
             _httpContextAccessor.HttpContext.Response.Headers.Add("Set-Cookie", cookies);
             return url;
         }
@@ -107,20 +103,7 @@ namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
                 {"code", code},
                 {"state", Options.StateDataFormat.Protect(authenticationProperties)},
             });
-            SetContext(context);
-        }
-
-        private void SetContext(HttpContext context)
-        {
-            var type = _authHandler.GetType();
-            while (!type.Name.StartsWith("AuthenticationHandler"))
-                type = type.BaseType;
-
-            var property = type
-                .GetProperty("Context", BindingFlags.NonPublic | BindingFlags.Instance);
-            property.SetValue(_authHandler, context,
-                BindingFlags.NonPublic | BindingFlags.SetProperty | BindingFlags.Instance, null, new object[] { },
-                CultureInfo.CurrentCulture);
+            _authHandler.SetHttpContext(context);
         }
 
         public OpenIdConnectOptions Options => _authHandler.Options;

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
@@ -48,6 +49,7 @@ namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
         }
 
         public ISecureDataFormat<AuthenticationProperties> StateDataFormat => Options.StateDataFormat;
+
         public async Task<AuthenticationTicket> GetTicket(string code, string absoluteCallbackUri)
         {
             var oauthToken = await ExchangeCodeAsync(code, absoluteCallbackUri);
