@@ -4,7 +4,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 
-namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
+namespace IdentityOAuthSpaExtensions.Wrappers
 {
     public static class ReflectionHelpers
     {

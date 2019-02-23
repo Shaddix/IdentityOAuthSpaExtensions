@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Reflection;
-using IdentityOAuthSpaExtensions.GrantValidators.Providers;
+using IdentityOAuthSpaExtensions.Wrappers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace IdentityOAuthSpaExtensions.GrantValidators
+namespace IdentityOAuthSpaExtensions.Services
 {
     public static class ExternalAuthExtensions
     {

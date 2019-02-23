@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authentication;
 
-namespace IdentityOAuthSpaExtensions.GrantValidators
+namespace IdentityOAuthSpaExtensions.Services
 {
     public class ExternalUserInfo
     {

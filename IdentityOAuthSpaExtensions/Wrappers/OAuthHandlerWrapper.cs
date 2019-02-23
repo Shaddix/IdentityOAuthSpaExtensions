@@ -1,17 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Security.Claims;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Http;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
-namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
+namespace IdentityOAuthSpaExtensions.Wrappers
 {
-    public class OAuthHandlerWrapper : IExternalAuthenticator
+    public class OAuthHandlerWrapper : IExternalAuthenticationWrapper
     {
         private readonly IAuthenticationHandler _authHandler;
 

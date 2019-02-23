@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace IdentityOAuthSpaExtensions.GrantValidators
+namespace IdentityOAuthSpaExtensions.Services
 {
     /// <summary>
     /// Authenticates users via external OAuth providers.

@@ -1,22 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Security.Claims;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
-namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
+namespace IdentityOAuthSpaExtensions.Wrappers
 {
-    public class RemoteAuthenticationHandlerWrapper<TOptions> : IExternalAuthenticator
+    public class RemoteAuthenticationHandlerWrapper<TOptions> : IExternalAuthenticationWrapper
         where TOptions : RemoteAuthenticationOptions, new()
     {
         private readonly RemoteAuthenticationHandler<TOptions> _authHandler;

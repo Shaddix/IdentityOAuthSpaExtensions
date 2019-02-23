@@ -1,11 +1,9 @@
-﻿using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.OAuth;
 
-namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
+namespace IdentityOAuthSpaExtensions.Wrappers
 {
-    public interface IExternalAuthenticator
+    public interface IExternalAuthenticationWrapper
     {
         Task<string> BuildChallengeUrl(AuthenticationProperties properties, string redirectUri);
         ISecureDataFormat<AuthenticationProperties> StateDataFormat { get; }

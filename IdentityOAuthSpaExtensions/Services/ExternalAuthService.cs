@@ -2,12 +2,12 @@
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityModel;
-using IdentityOAuthSpaExtensions.GrantValidators.Providers;
+using IdentityOAuthSpaExtensions.Wrappers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace IdentityOAuthSpaExtensions.GrantValidators
+namespace IdentityOAuthSpaExtensions.Services
 {
     public class ExternalAuthService
     {

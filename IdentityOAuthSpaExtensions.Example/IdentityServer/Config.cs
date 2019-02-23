@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using IdentityOAuthSpaExtensions.GrantValidators;
+using IdentityOAuthSpaExtensions.Services;
 using IdentityServer4.Models;
 
 namespace IdentityOAuthSpaExtensions.Example.IdentityServer

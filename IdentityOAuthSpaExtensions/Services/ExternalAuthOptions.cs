@@ -1,4 +1,4 @@
-namespace IdentityOAuthSpaExtensions.GrantValidators
+namespace IdentityOAuthSpaExtensions.Services
 {
     public class ExternalAuthOptions
     {

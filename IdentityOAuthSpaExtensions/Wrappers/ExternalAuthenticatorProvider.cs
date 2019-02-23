@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
-namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
+namespace IdentityOAuthSpaExtensions.Wrappers
 {
     public class ExternalAuthenticatorProvider
     {
@@ -21,7 +21,7 @@ namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
             _authenticationOptionsMonitor = authenticationOptionsMonitor;
         }
 
-        public async Task<IExternalAuthenticator> GetAuthenticator(string providerName)
+        public async Task<IExternalAuthenticationWrapper> GetAuthenticator(string providerName)
         {
             var authOptions = _authenticationOptionsMonitor.CurrentValue;
             providerName = providerName.ToLower();
@@ -80,7 +80,7 @@ namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
                         .MakeGenericType(new[] {options.GetType()});
                     var handlerWrapper =
                         Activator.CreateInstance(wrapperType, new object[] {authHandler, _httpContextAccessor});
-                    return (IExternalAuthenticator) handlerWrapper;
+                    return (IExternalAuthenticationWrapper) handlerWrapper;
                 }
 
                 throw new InvalidOperationException(
