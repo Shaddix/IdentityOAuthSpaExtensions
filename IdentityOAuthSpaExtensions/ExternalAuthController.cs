@@ -30,8 +30,8 @@ namespace IdentityOAuthSpaExtensions
             // We can't just use return Challenge(props, provider);
             // because it will try to authorize the user on return
             // but we don't have cookies authentication configured (we are SPA)
-            returnUrl = returnUrl ?? Url.Action(nameof(OAuthResult),"ExternalAuth", null, Request.Scheme);
-            
+            returnUrl = returnUrl ?? Url.Action(nameof(OAuthResult), "ExternalAuth", null, Request.Scheme);
+
             var url = await _externalAuthService.GetChallengeLink(provider, returnUrl);
             return Redirect(url);
         }
@@ -53,7 +53,8 @@ namespace IdentityOAuthSpaExtensions
 
         [HttpPost("callback-{provider}")]
         [AllowAnonymous]
-        public async Task<IActionResult> ChallengeCallbackPost(string provider, [FromForm]string state, [FromForm]string code)
+        public async Task<IActionResult> ChallengeCallbackPost(string provider, [FromForm] string state,
+            [FromForm] string code)
         {
             return await ChallengeCallback(provider, state, code);
         }

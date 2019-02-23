@@ -16,12 +16,13 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
 {
-    public class OpenIdHandlerWrapper : IExternalAuthenticator
+    public class RemoteAuthenticationHandlerWrapper<TOptions> : IExternalAuthenticator
+        where TOptions : RemoteAuthenticationOptions, new()
     {
-        private readonly OpenIdConnectHandler _authHandler;
+        private readonly RemoteAuthenticationHandler<TOptions> _authHandler;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public OpenIdHandlerWrapper(OpenIdConnectHandler authHandler,
+        public RemoteAuthenticationHandlerWrapper(RemoteAuthenticationHandler<TOptions> authHandler,
             IHttpContextAccessor httpContextAccessor)
         {
             _authHandler = authHandler;
@@ -53,7 +54,12 @@ namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
             var newOptions = _authHandler.Options.MemberwiseClone();
             var newCallbackPath = new Uri(redirectUri).PathAndQuery;
             newOptions.CallbackPath = newCallbackPath;
-            newOptions.ResponseType = OpenIdConnectResponseType.CodeIdToken;
+            var openIdConnectOptions = newOptions as OpenIdConnectOptions;
+            if (openIdConnectOptions != null)
+            {
+                openIdConnectOptions.ResponseType = OpenIdConnectResponseType.CodeIdToken;
+            }
+
             _authHandler.SetOptions(newOptions);
 
             await _authHandler.ChallengeAsync(properties);
@@ -65,7 +71,8 @@ namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
             return url;
         }
 
-        public ISecureDataFormat<AuthenticationProperties> StateDataFormat => Options.StateDataFormat;
+        public ISecureDataFormat<AuthenticationProperties> StateDataFormat =>
+            (ISecureDataFormat<AuthenticationProperties>) ((dynamic) Options).StateDataFormat;
 
         public async Task<AuthenticationTicket> GetTicket(string code, string absoluteCallbackUri)
         {
@@ -101,11 +108,11 @@ namespace IdentityOAuthSpaExtensions.GrantValidators.Providers
             request.Form = new FormCollection(new Dictionary<string, StringValues>()
             {
                 {"code", code},
-                {"state", Options.StateDataFormat.Protect(authenticationProperties)},
+                {"state", StateDataFormat.Protect(authenticationProperties)},
             });
             _authHandler.SetHttpContext(context);
         }
 
-        public OpenIdConnectOptions Options => _authHandler.Options;
+        public TOptions Options => _authHandler.Options;
     }
 }
