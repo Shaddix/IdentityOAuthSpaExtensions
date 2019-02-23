@@ -1,6 +1,6 @@
 ﻿
 using IdentityOAuthSpaExtensions.Example.IdentityServer;
-using IdentityOAuthSpaExtensions.GrantValidators;
+using IdentityOAuthSpaExtensions.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
