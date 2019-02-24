@@ -65,7 +65,7 @@ namespace IdentityOAuthSpaExtensions.Services
         public virtual async Task<AuthenticationProperties> Unprotect(string provider, string state)
         {
             var providerInstance = await _externalAuthenticatorProvider.GetAuthenticator(provider);
-            var authOptions = providerInstance.StateDataFormat.Unprotect(state);
+            var authOptions = providerInstance.Unprotect(state);
             return authOptions;
         }
 

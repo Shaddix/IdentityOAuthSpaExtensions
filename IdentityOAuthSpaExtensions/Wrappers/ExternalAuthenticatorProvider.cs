@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
@@ -58,9 +59,13 @@ namespace IdentityOAuthSpaExtensions.Wrappers
                     // This is tested on AzureAD (we could test on more OpenIdConnect providers when they are known)
                     return new OpenIdConnectHandlerWrapper(openIdConnectHandler, _httpContextAccessor);
                 }
+                else if (authHandler is TwitterHandler twitterHandler)
+                {
+                    return new TwitterAuthenticationHandlerWrapper(twitterHandler, _httpContextAccessor);
+                }
                 else if (IsRemoteAuthenticationHandler(authHandler))
                 {
-                    // At the moment this is tested on Twitter only
+                    // At the moment this is tested on AzureAD only
                     var options = ((dynamic) authHandler).Options as AuthenticationSchemeOptions;
                     if (options == null)
                     {

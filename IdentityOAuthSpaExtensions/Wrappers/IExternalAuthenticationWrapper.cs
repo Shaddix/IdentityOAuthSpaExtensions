@@ -6,7 +6,7 @@ namespace IdentityOAuthSpaExtensions.Wrappers
     public interface IExternalAuthenticationWrapper
     {
         Task<string> BuildChallengeUrl(AuthenticationProperties properties, string redirectUri);
-        ISecureDataFormat<AuthenticationProperties> StateDataFormat { get; }
+        AuthenticationProperties Unprotect(string state);
         Task<AuthenticationTicket> GetTicket(string code, string absoluteCallbackUri);
     }
 }

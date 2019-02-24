@@ -5,10 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using IdentityOAuthSpaExtensions.Services;
+using IdentityOAuthSpaExtensions.Wrappers;
 using IdentityServer4.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 
 namespace IdentityOAuthSpaExtensions
 {
@@ -44,10 +46,28 @@ namespace IdentityOAuthSpaExtensions
             return File(resourceStream, "text/html");
         }
 
+        private async Task<IActionResult> ChallengeCallbackTwitter()
+        {
+            var oauth_token = Request.Query["oauth_token"];
+            var oauth_verifier = Request.Query["oauth_verifier"];
+            var state = Request.Cookies["__TwitterState"];
+            var code = JsonConvert.SerializeObject(new TwitterAuthenticationHandlerWrapper.CodeContainer
+            {
+                OAuthToken = oauth_token,
+                OAuthVerifier = oauth_verifier,
+            });
+            return await ChallengeCallback("Twitter", state, code);
+        }
+
         [HttpGet("callback-{provider}")]
         [AllowAnonymous]
         public async Task<IActionResult> ChallengeCallbackGet(string provider, string state, string code)
         {
+            if (provider.ToLower() == "twitter")
+            {
+                return await ChallengeCallbackTwitter();
+            }
+
             return await ChallengeCallback(provider, state, code);
         }
 

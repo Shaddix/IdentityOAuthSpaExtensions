@@ -45,6 +45,11 @@ namespace IdentityOAuthSpaExtensions.Wrappers
 
         public ISecureDataFormat<AuthenticationProperties> StateDataFormat => Options.StateDataFormat;
 
+        public virtual AuthenticationProperties Unprotect(string state)
+        {
+            return Options.StateDataFormat.Unprotect(state);
+        }
+
         public async Task<AuthenticationTicket> GetTicket(string code, string absoluteCallbackUri)
         {
             var oauthToken = await ExchangeCodeAsync(code, absoluteCallbackUri);

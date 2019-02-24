@@ -16,7 +16,7 @@ namespace IdentityOAuthSpaExtensions.Wrappers
         where TOptions : RemoteAuthenticationOptions, new()
     {
         private readonly RemoteAuthenticationHandler<TOptions> _authHandler;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        protected readonly IHttpContextAccessor _httpContextAccessor;
 
         public RemoteAuthenticationHandlerWrapper(RemoteAuthenticationHandler<TOptions> authHandler,
             IHttpContextAccessor httpContextAccessor)
@@ -70,7 +70,7 @@ namespace IdentityOAuthSpaExtensions.Wrappers
         public ISecureDataFormat<AuthenticationProperties> StateDataFormat =>
             (ISecureDataFormat<AuthenticationProperties>) ((dynamic) Options).StateDataFormat;
 
-        public async Task<AuthenticationTicket> GetTicket(string code, string absoluteCallbackUri)
+        public virtual async Task<AuthenticationTicket> GetTicket(string code, string absoluteCallbackUri)
         {
             StubRequest(code, absoluteCallbackUri);
             var result = await HandleRemoteAuthenticateAsync();
@@ -82,7 +82,7 @@ namespace IdentityOAuthSpaExtensions.Wrappers
             return result.Ticket;
         }
 
-        private void StubRequest(string code, string absoluteCallbackUrl)
+        protected virtual void StubRequest(string code, string absoluteCallbackUrl)
         {
             var context = new DefaultHttpContext();
             var request = (DefaultHttpRequest) context.Request;
@@ -110,5 +110,10 @@ namespace IdentityOAuthSpaExtensions.Wrappers
         }
 
         public TOptions Options => _authHandler.Options;
+        
+        public virtual AuthenticationProperties Unprotect(string state)
+        {
+            return StateDataFormat.Unprotect(state);
+        }
     }
 }

@@ -66,7 +66,13 @@ namespace IdentityOAuthSpaExtensions.Example
                     options.ConsumerKey = "SOxtwARctjMn5ZYouNTcBopMs";
                     options.ConsumerSecret = "f8ZyXWxa7VVdU79cS3KM7hUlx0Z15pmTkCxispLU4JrKkA8B4E";
                 })
-                
+                .AddAzureAD(options =>
+                {
+                    options.Instance = "https://login.microsoftonline.com/";
+                    options.ClientId = "ee0a81cc-40af-465f-98a5-827b5dc6e272";
+                    options.TenantId = "4620751a-8ca3-4df9-92a7-6fb9b06279d3";
+                    options.ClientSecret = "k%m-(biE^k|Vt-%%h%}8|]N1%xR9=Dn$wIX";
+                })
                 ;
             services.ConfigureExternalAuth(Configuration);
 
