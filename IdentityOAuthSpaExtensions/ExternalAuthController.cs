@@ -85,13 +85,8 @@ namespace IdentityOAuthSpaExtensions
             //var userId = await _externalAuthService.GetExternalUserInfo(provider, code);
             var authOptions = await _externalAuthService.Unprotect(provider, state);
 
-            var uriBuilder = new UriBuilder(authOptions.RedirectUri);
-            var query = HttpUtility.ParseQueryString(uriBuilder.Query);
-            query["code"] = code;
-            query["provider"] = provider;
-            uriBuilder.Query = query.ToString();
-
-            return Redirect(uriBuilder.ToString());
+            var encodedUrl = $"code={HttpUtility.UrlEncode(code)}&provider={HttpUtility.UrlEncode(provider)}";
+            return Redirect(authOptions.RedirectUri + "#" + encodedUrl);
         }
     }
 }

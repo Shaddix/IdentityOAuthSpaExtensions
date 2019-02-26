@@ -114,7 +114,7 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    alert('error');
+                    alert('Error (Unauthorized)');
                     return null;
                 }
                 return response.json();
