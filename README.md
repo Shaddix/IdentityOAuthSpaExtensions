@@ -1,5 +1,5 @@
 # IdentityOAuthSpaExtensions
-.Net Core library that allows easy integration of external OAuth providers into your SPA. It has even more perks if you use IdentityServer.
+.Net Core library that allows easy integration of external OAuth providers into your SPA. It has even more perks if you use IdentityServer. Here's the [demo](https://oauth.arturdr.ru) if you care.
 
 # What you can do with this library?
 - On SPA side you could receive AuthCode from OAuth provider ([Authorization Code Flow](https://oauth.net/2/grant-types/authorization-code/))
