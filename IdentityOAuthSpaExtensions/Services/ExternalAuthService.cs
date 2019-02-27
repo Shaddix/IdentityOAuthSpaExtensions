@@ -57,7 +57,7 @@ namespace IdentityOAuthSpaExtensions.Services
             var request = context.Request;
 
             var absoluteCallbackUri = new UriBuilder(request.Scheme, request.Host.Host, request.Host.Port ?? 80, url)
-                .ToString();
+                .Uri.ToString();
             return absoluteCallbackUri;
         }
 

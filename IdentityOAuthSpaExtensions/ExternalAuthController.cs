@@ -38,14 +38,6 @@ namespace IdentityOAuthSpaExtensions
             return Redirect(url);
         }
 
-        [HttpGet("oauth-result")]
-        public async Task<IActionResult> OAuthResult()
-        {
-            var assembly = this.GetType().Assembly;
-            var resourceStream = assembly.GetManifestResourceStream("IdentityOAuthSpaExtensions.oauth-result.html");
-            return File(resourceStream, "text/html");
-        }
-
         private async Task<IActionResult> ChallengeCallbackTwitter()
         {
             var oauth_token = Request.Query["oauth_token"];
@@ -87,6 +79,14 @@ namespace IdentityOAuthSpaExtensions
 
             var encodedUrl = $"code={HttpUtility.UrlEncode(code)}&provider={HttpUtility.UrlEncode(provider)}";
             return Redirect(authOptions.RedirectUri + "#" + encodedUrl);
+        }
+        
+        [HttpGet("oauth-result")]
+        public async Task<IActionResult> OAuthResult()
+        {
+            var assembly = this.GetType().Assembly;
+            var resourceStream = assembly.GetManifestResourceStream("IdentityOAuthSpaExtensions.oauth-result.html");
+            return File(resourceStream, "text/html");
         }
     }
 }
