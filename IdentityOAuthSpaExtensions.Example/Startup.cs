@@ -1,5 +1,4 @@
-﻿
-using IdentityOAuthSpaExtensions.Example.IdentityServer;
+﻿using IdentityOAuthSpaExtensions.Example.IdentityServer;
 using IdentityOAuthSpaExtensions.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -27,6 +26,11 @@ namespace IdentityOAuthSpaExtensions.Example
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders =
+                    ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
 
             services.AddDbContext<IdentityContext>(options => options
                 .UseInMemoryDatabase("OAuthTest"));
@@ -59,8 +63,7 @@ namespace IdentityOAuthSpaExtensions.Example
                 })
                 .AddGitHub(options =>
                 {
-                    options.ClientId = "eaf89b3779c82f5a0d65";
-                    options.ClientSecret = "baf6e9860dce3dab94a356acd0ce8024d2ee1fd2";
+                    Configuration.GetSection("GitHub").Bind(options);
                 })
                 .AddTwitter(options =>
                 {
@@ -96,11 +99,8 @@ namespace IdentityOAuthSpaExtensions.Example
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseForwardedHeaders(new ForwardedHeadersOptions()
-            {
-                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-            });
-            
+            app.UseForwardedHeaders();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -111,7 +111,7 @@ namespace IdentityOAuthSpaExtensions.Example
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            
+
             app.UseIdentityServer();
             app.UseAuthentication();
 
