@@ -89,7 +89,7 @@ namespace IdentityOAuthSpaExtensions.Example
                 }).AddJwtBearer(
                     options =>
                     {
-                        options.Authority = "http://localhost:5000"; // this is a public host
+                        options.Authority = Configuration.GetSection("Auth")["PublicHost"]; // this is a public host
                         options.RequireHttpsMetadata = false;
                         options.Audience = "api1";
                     })
