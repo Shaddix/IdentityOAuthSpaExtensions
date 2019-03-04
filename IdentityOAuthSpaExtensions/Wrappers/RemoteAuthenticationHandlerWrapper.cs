@@ -99,6 +99,14 @@ namespace IdentityOAuthSpaExtensions.Wrappers
             var cookies =
                 _httpContextAccessor.HttpContext.Request.Cookies.ToDictionary(x => x.Key, x => x.Value);
             cookies[xsrfCookieName] = "N";
+            foreach (var formKey in _httpContextAccessor.HttpContext.Request.Form.Keys)
+            {
+                if (!cookies.ContainsKey(formKey))
+                {
+                    cookies[formKey] = _httpContextAccessor.HttpContext.Request.Form[formKey];
+                }
+            }
+
             request.Cookies = new RequestCookieCollection(cookies);
 
             request.Form = new FormCollection(new Dictionary<string, StringValues>()
@@ -110,7 +118,7 @@ namespace IdentityOAuthSpaExtensions.Wrappers
         }
 
         public TOptions Options => _authHandler.Options;
-        
+
         public virtual AuthenticationProperties Unprotect(string state)
         {
             return StateDataFormat.Unprotect(state);
