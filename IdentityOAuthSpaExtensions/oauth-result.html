@@ -34,7 +34,7 @@
     message.errorDescription = getParameterByName("error_description");
   }
   var openerUrl = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port;
-  window.opener.postMessage(JSON.stringify(message), openerUrl);
+  window.opener.postMessage(message, openerUrl);
   window.close();
 </script>
 </body>
