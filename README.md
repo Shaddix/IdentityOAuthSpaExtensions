@@ -44,14 +44,11 @@ or
 - Subscribe to messages on a window: ```window.addEventListener("message", this.oAuthCodeReceived, false);``` and provide oAuthCodeReceived implementation like:
 ```
     function oAuthCodeReceived(message) {
-        if (message.data) {
-            let data = JSON.parse(message.data);
-            if (data.type === 'oauth-result') {
-                if (data.code) {
-                    externalAuthSuccess(data.provider, data.code);
-                } else {
-                    externalAuthError(data.provider, data.error, data.errorDescription);
-                }
+        if (message.data && message.data.type === 'oauth-result') {
+            if (data.code) {
+                externalAuthSuccess(data.provider, data.code);
+            } else {
+                externalAuthError(data.provider, data.error, data.errorDescription);
             }
         }
     }
