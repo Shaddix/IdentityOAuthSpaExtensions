@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
@@ -85,7 +84,7 @@ namespace IdentityOAuthSpaExtensions.Wrappers
         protected virtual void StubRequest(string code, string absoluteCallbackUrl)
         {
             var context = new DefaultHttpContext();
-            var request = (DefaultHttpRequest) context.Request;
+            var request = context.Request;
             request.Method = "POST";
             request.ContentType = "application/x-www-form-urlencoded";
             var xsrfValue = Guid.NewGuid().ToString();

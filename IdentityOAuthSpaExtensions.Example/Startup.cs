@@ -1,8 +1,6 @@
-﻿using IdentityOAuthSpaExtensions.Example.IdentityServer;
-using IdentityOAuthSpaExtensions.Services;
+﻿using IdentityOAuthSpaExtensions.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -25,7 +23,8 @@ namespace IdentityOAuthSpaExtensions.Example
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddControllers();
+
             services.Configure<ForwardedHeadersOptions>(options =>
             {
                 options.ForwardedHeaders =
@@ -34,14 +33,21 @@ namespace IdentityOAuthSpaExtensions.Example
 
             services.AddDbContext<IdentityContext>(options => options
                 .UseInMemoryDatabase("OAuthTest"));
-            services.AddIdentity<IdentityUser, IdentityRole>()
+
+            services.AddDefaultIdentity<IdentityUser>(options =>
+                {
+                    options.SignIn.RequireConfirmedAccount = false;
+                    options.Lockout.AllowedForNewUsers = false;
+                })
+                .AddRoles<IdentityRole>()
+                .AddRoleManager<RoleManager<IdentityRole>>()
                 .AddEntityFrameworkStores<IdentityContext>()
                 .AddDefaultTokenProviders();
+            
             services.AddIdentityServer()
                 .AddDeveloperSigningCredential()
-                .AddInMemoryApiResources(Config.GetApiResources())
-                .AddInMemoryClients(Config.GetClients())
-                .AddAspNetIdentity<IdentityUser>()
+                .AddInMemoryApiResources(Configuration.GetSection("IdentityServer:ApiResources"))
+                .AddInMemoryClients(Configuration.GetSection("IdentityServer:Clients"))
                 .AddExtensionGrantValidator<ExternalAuthenticationGrantValidator<IdentityUser, string>>();
             ;
 
@@ -61,10 +67,7 @@ namespace IdentityOAuthSpaExtensions.Example
                     options.ClientId = "ab2ce88f-efef-49c5-b89f-87a87b7dfc2c";
                     options.ClientSecret = "wfileLMHY~_~hcONF32735{";
                 })
-                .AddGitHub(options =>
-                {
-                    Configuration.GetSection("GitHub").Bind(options);
-                })
+                .AddGitHub(options => { Configuration.GetSection("GitHub").Bind(options); })
                 .AddTwitter(options =>
                 {
                     options.ConsumerKey = "SOxtwARctjMn5ZYouNTcBopMs";
@@ -78,8 +81,8 @@ namespace IdentityOAuthSpaExtensions.Example
                     options.ClientSecret = "k%m-(biE^k|Vt-%%h%}8|]N1%xR9=Dn$wIX";
                 })
                 ;
-            services.ConfigureExternalAuth(Configuration);
-
+            services.ConfigureExternalAuth();
+            
             // if you want to secure some controllers/actions within the same project with JWT
             // you need to configure something like the following
             services.AddAuthentication(o =>
@@ -91,9 +94,9 @@ namespace IdentityOAuthSpaExtensions.Example
                     {
                         options.Authority = Configuration.GetSection("Auth")["PublicHost"]; // this is a public host
                         options.RequireHttpsMetadata = false;
-                        options.Audience = "api1";
+                        options.Audience = "local";
                     })
-                ;
+            ;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -112,11 +115,19 @@ namespace IdentityOAuthSpaExtensions.Example
                 app.UseHsts();
             }
 
-            app.UseIdentityServer();
+            app.UseRouting();
+
             app.UseAuthentication();
+            app.UseAuthorization();
+            app.UseIdentityServer();
+
 
             app.UseStaticFiles();
-            app.UseMvc();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapRazorPages();
+                endpoints.MapControllers();
+            });
         }
     }
 }

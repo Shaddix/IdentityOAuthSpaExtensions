@@ -1,14 +1,9 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Primitives;
-using Microsoft.AspNetCore.Authentication;
 using Newtonsoft.Json;
 
 namespace IdentityOAuthSpaExtensions.Wrappers
@@ -20,6 +15,7 @@ namespace IdentityOAuthSpaExtensions.Wrappers
             public string OAuthToken { get; set; }
             public string OAuthVerifier { get; set; }
         }
+
         private readonly TwitterHandler _authHandler;
 
         public TwitterAuthenticationHandlerWrapper(TwitterHandler authHandler,
@@ -27,7 +23,7 @@ namespace IdentityOAuthSpaExtensions.Wrappers
         {
             _authHandler = authHandler;
         }
-        
+
         public override AuthenticationProperties Unprotect(string state)
         {
             return Options.StateDataFormat.Unprotect(state).Properties;
@@ -36,14 +32,14 @@ namespace IdentityOAuthSpaExtensions.Wrappers
         protected override void StubRequest(string code, string absoluteCallbackUrl)
         {
             var deserializedToken = JsonConvert.DeserializeObject<CodeContainer>(code);
-            
+
             var context = new DefaultHttpContext();
-            var request = (DefaultHttpRequest) context.Request;
+            var request = context.Request;
             var authenticationProperties = new AuthenticationProperties(new Dictionary<string, string>()
             {
                 {OpenIdConnectDefaults.RedirectUriForCodePropertiesKey, absoluteCallbackUrl}
             });
-            
+
             var state = new Microsoft.AspNetCore.Authentication.Twitter.RequestToken()
             {
                 Token = deserializedToken.OAuthToken,

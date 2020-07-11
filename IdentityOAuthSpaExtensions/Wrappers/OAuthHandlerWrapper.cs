@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
@@ -29,9 +30,12 @@ namespace IdentityOAuthSpaExtensions.Wrappers
 
         public async Task<OAuthTokenResponse> ExchangeCodeAsync(string code, string redirectUrl)
         {
+            var authenticationProperties = new AuthenticationProperties(new Dictionary<string, string>());
+            OAuthCodeExchangeContext
+                context = new OAuthCodeExchangeContext(authenticationProperties, code, redirectUrl);
             var method = _authHandler.GetType()
                 .GetMethod("ExchangeCodeAsync", BindingFlags.NonPublic | BindingFlags.Instance);
-            var result = (Task<OAuthTokenResponse>) method.Invoke(_authHandler, new object[] {code, redirectUrl});
+            var result = (Task<OAuthTokenResponse>) method.Invoke(_authHandler, new object[] {context});
             return await result;
         }
 
