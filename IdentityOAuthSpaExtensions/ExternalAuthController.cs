@@ -10,21 +10,33 @@ using IdentityServer4.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace IdentityOAuthSpaExtensions
 {
+    /// <summary>
+    /// Controller to handle external authentication
+    /// </summary>
     [Route("/external-auth")]
     [ApiController]
     public class ExternalAuthController : ControllerBase
     {
         private readonly ExternalAuthService _externalAuthService;
+        private readonly ILogger<ExternalAuthController> _logger;
 
-        public ExternalAuthController(ExternalAuthService externalAuthService)
+        public ExternalAuthController(ExternalAuthService externalAuthService, ILogger<ExternalAuthController> logger)
         {
             _externalAuthService = externalAuthService;
+            _logger = logger;
         }
 
+        /// <summary>
+        /// Redirects the user to external authentication page
+        /// </summary>
+        /// <param name="provider">External authentication provider name (e.g. 'google' or 'facebook')</param>
+        /// <param name="returnUrl">URL to return to</param>
+        /// <returns>Redirect result</returns>
         [HttpGet("challenge")]
         [AllowAnonymous]
         public async Task<IActionResult> Challenge(string provider, string returnUrl)
@@ -32,7 +44,7 @@ namespace IdentityOAuthSpaExtensions
             // We can't just use return Challenge(props, provider);
             // because it will try to authorize the user on return
             // but we don't have cookies authentication configured (we are SPA)
-            returnUrl = returnUrl ?? Url.Action(nameof(OAuthResult), "ExternalAuth", null, Request.Scheme);
+            returnUrl ??= Url.Action(nameof(OAuthResult), "ExternalAuth", null, Request.Scheme);
 
             var url = await _externalAuthService.GetChallengeLink(provider, returnUrl);
             return Redirect(url);
@@ -51,6 +63,14 @@ namespace IdentityOAuthSpaExtensions
             return await ChallengeCallback("Twitter", state, code);
         }
 
+        /// <summary>
+        /// Return URL from external authentication.
+        /// This URL should be included in the list of return URLs at external authentication provider side.
+        /// </summary>
+        /// <param name="provider">External authentication provider name (e.g. 'google' or 'facebook')</param>
+        /// <param name="state">Auth state</param>
+        /// <param name="code">AuthCode</param>
+        /// <returns>Redirect result to main SPA if everything is ok; error otherwise</returns>
         [HttpGet("callback-{provider}")]
         [AllowAnonymous]
         public async Task<IActionResult> ChallengeCallbackGet(string provider, string state, string code)
@@ -63,15 +83,25 @@ namespace IdentityOAuthSpaExtensions
             return await ChallengeCallback(provider, state, code);
         }
 
+        /// <summary>
+        /// Return URL from external authentication in case of POST returns.
+        /// This URL should be included in the list of return URLs at external authentication provider side.
+        /// </summary>
+        /// <param name="provider">External authentication provider name (e.g. 'google' or 'facebook')</param>
+        /// <param name="state">Auth state</param>
+        /// <param name="code">AuthCode</param>
+        /// <returns>Redirect result to main SPA if everything is ok; error otherwise</returns>
         [HttpPost("callback-{provider}")]
         [AllowAnonymous]
-        public async Task<IActionResult> ChallengeCallbackPost(string provider, [FromForm] string state,
-            [FromForm] string code)
+        public async Task<IActionResult> ChallengeCallbackPost(string provider, [FromForm]
+            string state,
+            [FromForm]
+            string code)
         {
             return await ChallengeCallback(provider, state, code);
         }
 
-        public async Task<IActionResult> ChallengeCallback(string provider, string state, string code)
+        private async Task<IActionResult> ChallengeCallback(string provider, string state, string code)
         {
             //later we could do:
             //var userId = await _externalAuthService.GetExternalUserInfo(provider, code);
@@ -80,7 +110,10 @@ namespace IdentityOAuthSpaExtensions
             var encodedUrl = $"code={HttpUtility.UrlEncode(code)}&provider={HttpUtility.UrlEncode(provider)}";
             return Redirect(authOptions.RedirectUri + "#" + encodedUrl);
         }
-        
+
+        /// <summary>
+        /// Returns static HTML that will trigger the authentication callback on main SPA
+        /// </summary>
         [HttpGet("oauth-result")]
         public async Task<IActionResult> OAuthResult()
         {
