@@ -3,11 +3,12 @@
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>0.3.1</PackageVersion>
+        <PackageVersion>0.3.2</PackageVersion>
         <Title>IdentityOAuthSpaExtensions</Title>
         <Authors>Artur Drobinskiy</Authors>
         <Description>Allows easy integration of external OAuth providers into your SPA</Description>
         <RepositoryUrl>https://github.com/Shaddix/IdentityOAuthSpaExtensions</RepositoryUrl>
+        <PackageLicenseUrl>https://github.com/Shaddix/IdentityOAuthSpaExtensions/blob/master/LICENSE.md</PackageLicenseUrl>
         <RepositoryType>GitHub</RepositoryType>
     </PropertyGroup>
 
