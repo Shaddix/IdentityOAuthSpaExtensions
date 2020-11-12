@@ -1,21 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net5.0</TargetFramework>
         <UserSecretsId>aspnet-IdentityOAuthSpaExtensions.Example-EF745C35-3F8F-485A-998C-150F352981C9</UserSecretsId>
         <WebProject_DirectoryAccessLevelKey>0</WebProject_DirectoryAccessLevelKey>
         <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AspNet.Security.OAuth.GitHub" Version="3.1.2" />
-        <PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="3.1.5" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="3.1.5" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="3.1.5" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="3.1.5" />
-        <PackageReference Include="Microsoft.AspNetCore.App" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.AzureAD.UI" Version="3.1.5" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.1.5" />
+        <PackageReference Include="AspNet.Security.OAuth.GitHub" Version="5.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="5.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="5.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="5.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="5.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.AzureAD.UI" Version="5.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="5.0.0" />
+        <PackageReference Include="Microsoft.Identity.Web" Version="1.3.0" />
     </ItemGroup>
 
     <ItemGroup>

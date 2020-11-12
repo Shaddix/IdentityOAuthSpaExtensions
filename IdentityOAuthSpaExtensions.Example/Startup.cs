@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Identity.Web;
 
 namespace IdentityOAuthSpaExtensions.Example
 {
@@ -43,18 +45,21 @@ namespace IdentityOAuthSpaExtensions.Example
                 .AddRoleManager<RoleManager<IdentityRole>>()
                 .AddEntityFrameworkStores<IdentityContext>()
                 .AddDefaultTokenProviders();
-            
+
             services.AddIdentityServer()
                 .AddDeveloperSigningCredential()
+                .AddInMemoryApiScopes(Configuration.GetSection("IdentityServer:ApiScopes"))
                 .AddInMemoryApiResources(Configuration.GetSection("IdentityServer:ApiResources"))
                 .AddInMemoryClients(Configuration.GetSection("IdentityServer:Clients"))
-                .AddExtensionGrantValidator<ExternalAuthenticationGrantValidator<IdentityUser, string>>();
+                .AddExtensionGrantValidator<
+                    ExternalAuthenticationGrantValidator<IdentityUser, string>>();
             ;
 
             services.AddAuthentication()
                 .AddGoogle(options =>
                 {
-                    options.ClientId = "497377001909-v63kflfb7gf26mmug97iinaqr80vr427.apps.googleusercontent.com";
+                    options.ClientId =
+                        "497377001909-v63kflfb7gf26mmug97iinaqr80vr427.apps.googleusercontent.com";
                     options.ClientSecret = "XfnbY7kdOqbAUdDrZoE4juwM";
                 })
                 .AddFacebook(options =>
@@ -72,17 +77,11 @@ namespace IdentityOAuthSpaExtensions.Example
                 {
                     options.ConsumerKey = "SOxtwARctjMn5ZYouNTcBopMs";
                     options.ConsumerSecret = "f8ZyXWxa7VVdU79cS3KM7hUlx0Z15pmTkCxispLU4JrKkA8B4E";
-                })
-                .AddAzureAD(options =>
-                {
-                    options.Instance = "https://login.microsoftonline.com/";
-                    options.ClientId = "ee0a81cc-40af-465f-98a5-827b5dc6e272";
-                    options.TenantId = "4620751a-8ca3-4df9-92a7-6fb9b06279d3";
-                    options.ClientSecret = "k%m-(biE^k|Vt-%%h%}8|]N1%xR9=Dn$wIX";
-                })
+                });
+                // services.AddMicrosoftIdentityWebApiAuthentication(Configuration, "AzureAD")
                 ;
             services.ConfigureExternalAuth();
-            
+
             // if you want to secure some controllers/actions within the same project with JWT
             // you need to configure something like the following
             services.AddAuthentication(o =>
@@ -92,15 +91,16 @@ namespace IdentityOAuthSpaExtensions.Example
                 }).AddJwtBearer(
                     options =>
                     {
-                        options.Authority = Configuration.GetSection("Auth")["PublicHost"]; // this is a public host
+                        options.Authority =
+                            Configuration.GetSection("Auth")["PublicHost"]; // this is a public host
                         options.RequireHttpsMetadata = false;
                         options.Audience = "local";
                     })
-            ;
+                ;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseForwardedHeaders();
 
