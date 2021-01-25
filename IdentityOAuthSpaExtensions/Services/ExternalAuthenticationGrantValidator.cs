@@ -100,13 +100,18 @@ namespace IdentityOAuthSpaExtensions.Services
                 throw new Exception("User creation failed " + createResult);
             }
 
-            var addLoginResult = await _userManager.AddLoginAsync(user,
-                new UserLoginInfo(providerName, externalUserInfo.Id, ""));
-            if (!addLoginResult.Succeeded)
-            {
-                throw new Exception("Adding external login failed " + addLoginResult);
-            }
-
+            return await this.AddLoginAndReturnResult(user, providerName, externalUserInfo.Id);
+        }
+        
+        /// <summary>Adds external OAuth login to the passed user</summary>
+        protected async Task<GrantValidationResult> AddLoginAndReturnResult(
+            TUser user,
+            string providerName,
+            string providerId)
+        {
+            IdentityResult identityResult = await _userManager.AddLoginAsync(user, new UserLoginInfo(providerName, providerId, ""));
+            if (!identityResult.Succeeded)
+                throw new Exception("Adding external login failed " + identityResult?.ToString());
             return CreateValidationResultForUser(user);
         }
 
