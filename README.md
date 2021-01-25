@@ -1,5 +1,5 @@
 # IdentityOAuthSpaExtensions
-**.Net Core 3.1** library that allows easy integration of external OAuth providers into your SPA. It has even more perks if you use IdentityServer. Here's the [demo](https://oauth.arturdr.ru) if you care.
+**.Net 5.0** library that allows easy integration of external OAuth providers into your SPA. It has even more perks if you use IdentityServer. Here's the [demo](https://oauth.arturdr.ru) if you care.
 ![Example workflow](example.gif)
 
 # What you can do with this library?
@@ -10,7 +10,7 @@
 
 # Goal
 The project goal is to allow easy integration of external OAuth providers (e.g. Google, Facebook, etc.) into your SPA applications (React, Angular, plain-old-js, whatever), with the minimum amount of needed code.
-This is a backend library, that integrates with Asp.Net Core 2.2+.
+This is a backend library, that integrates with Asp.Net Core 3.1+.
 The library is kept minimal, as we reuse all [official](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/social/?view=aspnetcore-2.2) and [non-official](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/social/other-logins?view=aspnetcore-2.2) authentication providers (i.e. library doesn't need to be updated when those external providers change).
 
 # How to

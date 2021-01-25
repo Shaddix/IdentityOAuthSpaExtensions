@@ -130,14 +130,12 @@ namespace IdentityOAuthSpaExtensions.Services
         /// By default it's externalUserInfo.Id.
         /// </summary>
         /// <param name="externalUserInfo">User information from OAuth provider</param>
-        protected virtual string GetUserName(ExternalUserInfo externalUserInfo)
-        {
-            return externalUserInfo.Id;
-        }
+        protected virtual string GetUserName(ExternalUserInfo externalUserInfo) =>
+            externalUserInfo.ProviderName + "_" + externalUserInfo.Id;
 
         protected virtual GrantValidationResult CreateValidationResultForUser(TUser user)
         {
-            return new GrantValidationResult(
+            return new(
                 user.Id.ToString(),
                 GrantType,
                 new[]
@@ -153,7 +151,7 @@ namespace IdentityOAuthSpaExtensions.Services
         /// </summary>
         protected virtual GrantValidationResult GetExternalUserNotFound()
         {
-            return new GrantValidationResult(
+            return new(
                 TokenRequestErrors.UnauthorizedClient,
                 "login_external_UserNotFound");
         }
