@@ -47,7 +47,8 @@ namespace IdentityOAuthSpaExtensions.Services
                 return;
             }
 
-            var externalUserInfo = await _externalAuthService.GetExternalUserInfo(providerName, oAuthCode);
+            var externalUserInfo =
+                await _externalAuthService.GetExternalUserInfo(providerName, oAuthCode);
 
             if (externalUserInfo == null)
             {
@@ -66,7 +67,8 @@ namespace IdentityOAuthSpaExtensions.Services
                 }
                 else
                 {
-                    context.Result = await CreateResultForLocallyNotFoundUser(providerName, externalUserInfo);
+                    context.Result =
+                        await CreateResultForLocallyNotFoundUser(providerName, externalUserInfo);
                 }
             }
             catch (Exception e)
@@ -85,7 +87,8 @@ namespace IdentityOAuthSpaExtensions.Services
         /// <param name="providerName">OAuth provider name</param>
         /// <param name="externalUserId">User Id provided by external OAuth server</param>
         /// <returns>GrantValidationResult</returns>
-        protected virtual async Task<GrantValidationResult> CreateResultForLocallyNotFoundUser(string providerName,
+        protected virtual async Task<GrantValidationResult> CreateResultForLocallyNotFoundUser(
+            string providerName,
             ExternalUserInfo externalUserInfo)
         {
             if (!_options.CurrentValue.CreateUserIfNotFound)
@@ -100,16 +103,25 @@ namespace IdentityOAuthSpaExtensions.Services
                 throw new Exception("User creation failed " + createResult);
             }
 
-            return await this.AddLoginAndReturnResult(user, providerName, externalUserInfo.Id);
+            string displayName = GetDisplayName(externalUserInfo);
+            return await AddLoginAndReturnResult(user, providerName, externalUserInfo.Id,
+                displayName);
         }
-        
-        /// <summary>Adds external OAuth login to the passed user</summary>
-        protected async Task<GrantValidationResult> AddLoginAndReturnResult(
-            TUser user,
-            string providerName,
-            string providerId)
+
+        protected virtual string GetDisplayName(ExternalUserInfo externalUserInfo)
         {
-            IdentityResult identityResult = await _userManager.AddLoginAsync(user, new UserLoginInfo(providerName, providerId, ""));
+            return "";
+        }
+
+        /// <summary>Adds external OAuth login to the passed user</summary>
+        protected virtual async Task<GrantValidationResult> AddLoginAndReturnResult(TUser user,
+            string providerName,
+            string providerId,
+            string displayName = "")
+        {
+            IdentityResult identityResult =
+                await _userManager.AddLoginAsync(user,
+                    new UserLoginInfo(providerName, providerId, displayName));
             if (!identityResult.Succeeded)
                 throw new Exception("Adding external login failed " + identityResult?.ToString());
             return CreateValidationResultForUser(user);
