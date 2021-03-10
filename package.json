@@ -1,6 +1,6 @@
 {
   "name": "@shaddix/identity-oauth-spa-extensions-buil",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "private": true,
   "dependencies": {
     "concurrently": "5.2.0",
