@@ -3,8 +3,8 @@
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
         <UserSecretsId>aspnet-IdentityOAuthSpaExtensions.Example-EF745C35-3F8F-485A-998C-150F352981C9</UserSecretsId>
-        <WebProject_DirectoryAccessLevelKey>0</WebProject_DirectoryAccessLevelKey>
-        <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+        <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+        <OutputType>Exe</OutputType>
     </PropertyGroup>
 
     <ItemGroup>

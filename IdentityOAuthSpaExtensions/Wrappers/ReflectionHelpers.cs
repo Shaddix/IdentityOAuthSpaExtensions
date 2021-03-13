@@ -3,19 +3,22 @@ using System.Globalization;
 using System.Reflection;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace IdentityOAuthSpaExtensions.Wrappers
 {
     public static class ReflectionHelpers
     {
-        public static void SetHttpContext(this IAuthenticationHandler authenticationHandler, HttpContext httpContext)
+        public static void SetHttpContext(this IAuthenticationHandler authenticationHandler,
+            HttpContext httpContext)
         {
             var type = GetAuthenticationHandlerBaseType(authenticationHandler);
 
             var property = type
                 .GetProperty("Context", BindingFlags.NonPublic | BindingFlags.Instance);
             property.SetValue(authenticationHandler, httpContext,
-                BindingFlags.NonPublic | BindingFlags.SetProperty | BindingFlags.Instance, null, new object[] { },
+                BindingFlags.NonPublic | BindingFlags.SetProperty | BindingFlags.Instance, null,
+                new object[] { },
                 CultureInfo.CurrentCulture);
         }
 
@@ -25,21 +28,42 @@ namespace IdentityOAuthSpaExtensions.Wrappers
             var type = GetAuthenticationHandlerBaseType(authenticationHandler);
 
             var property = type
-                .GetProperty("Options", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+                .GetProperty("Options",
+                    BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
             property.SetValue(authenticationHandler, authenticationSchemeOptions,
-                BindingFlags.NonPublic | BindingFlags.SetProperty | BindingFlags.Instance, null, new object[] { },
+                BindingFlags.NonPublic | BindingFlags.SetProperty | BindingFlags.Instance, null,
+                new object[] { },
                 CultureInfo.CurrentCulture);
         }
 
+        public static RemoteAuthenticationOptions GetOptions(
+            this IAuthenticationHandler authenticationHandler)
+        {
+            var type = GetAuthenticationHandlerBaseType(authenticationHandler);
+
+            var property = type
+                .GetProperty("OptionsMonitor",
+                    BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+
+            IOptionsMonitor<RemoteAuthenticationOptions> optionsMonitor = property.GetValue(
+                authenticationHandler,
+                BindingFlags.NonPublic | BindingFlags.GetProperty | BindingFlags.Instance, null,
+                new object[] { },
+                CultureInfo.CurrentCulture) as IOptionsMonitor<RemoteAuthenticationOptions>;
+
+            return optionsMonitor.CurrentValue;
+        }
+
         private static readonly MethodInfo CloneMethod =
-            typeof(Object).GetMethod("MemberwiseClone", BindingFlags.NonPublic | BindingFlags.Instance);
+            typeof(Object).GetMethod("MemberwiseClone",
+                BindingFlags.NonPublic | BindingFlags.Instance);
 
         public static bool IsPrimitive(this Type type)
         {
             if (type == typeof(String)) return true;
             return (type.IsValueType & type.IsPrimitive);
         }
-        
+
         public static T MemberwiseClone<T>(this T originalObject)
         {
             if (originalObject == null) return default(T);
@@ -47,10 +71,11 @@ namespace IdentityOAuthSpaExtensions.Wrappers
             if (IsPrimitive(typeToReflect)) return originalObject;
             if (typeof(Delegate).IsAssignableFrom(typeToReflect)) return default(T);
             var cloneObject = CloneMethod.Invoke(originalObject, null);
-            return (T)cloneObject;
+            return (T) cloneObject;
         }
 
-        private static Type GetAuthenticationHandlerBaseType(IAuthenticationHandler authenticationHandler)
+        private static Type GetAuthenticationHandlerBaseType(
+            IAuthenticationHandler authenticationHandler)
         {
             const string baseType = "Microsoft.AspNetCore.Authentication.AuthenticationHandler";
             var type = authenticationHandler.GetType();

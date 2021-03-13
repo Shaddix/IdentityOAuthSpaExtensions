@@ -1,41 +1,39 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
 <script>
-  function getParameterByName(name, url) {
-    if (!url) url = window.location.hash;
-    name = name.replace(/[\[\]]/g, "\\$&");
-    var regex = new RegExp('[?&#]' + name + '(=([^&#]*)|&|#|$)'),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, ' '));
-  }
+    function getParameterByName(name, url) {
+        if (!url) url = window.location.hash;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp('[?&#]' + name + '(=([^&#]*)|&|#|$)'),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
 
-  // if we don't receive an access token then login failed and/or the user has not connected properly
-  var code = getParameterByName('code');
-  var message = {
-    type: 'oauth-result',
-    provider: getParameterByName('provider'),
-  };
-  if (code) {
-    message.status = true;
-    message.code = code;
-  }
-  else
-  {
-    message.status = false;
-    message.error = getParameterByName("error");
-    message.errorDescription = getParameterByName("error_description");
-  }
-  var openerUrl = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port;
-  window.opener.postMessage(message, openerUrl);
-  window.close();
+    // if we don't receive an access token then login failed and/or the user has not connected properly
+    var code = encodeURIComponent(getParameterByName('code'));
+    var message = {
+        type: 'oauth-result',
+        provider: getParameterByName('provider'),
+    };
+    if (code) {
+        message.status = true;
+        message.code = code;
+    } else {
+        message.status = false;
+        message.error = getParameterByName("error");
+        message.errorDescription = getParameterByName("error_description");
+    }
+    var openerUrl = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port;
+    window.opener.postMessage(message, openerUrl);
+    window.close();
 </script>
 </body>
 </html>

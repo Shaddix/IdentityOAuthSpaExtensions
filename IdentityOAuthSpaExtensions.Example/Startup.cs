@@ -1,7 +1,6 @@
 ﻿using IdentityOAuthSpaExtensions.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
@@ -9,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Identity.Web;
 
 namespace IdentityOAuthSpaExtensions.Example
 {
@@ -56,30 +54,16 @@ namespace IdentityOAuthSpaExtensions.Example
             ;
 
             services.AddAuthentication()
-                .AddGoogle(options =>
-                {
-                    options.ClientId =
-                        "497377001909-v63kflfb7gf26mmug97iinaqr80vr427.apps.googleusercontent.com";
-                    options.ClientSecret = "XfnbY7kdOqbAUdDrZoE4juwM";
-                })
-                .AddFacebook(options =>
-                {
-                    options.ClientId = "2076005142436006";
-                    options.ClientSecret = "0fd775ac8e566f0a113f096ce42cf63a";
-                })
+                .AddGoogle(options => { Configuration.GetSection("Google").Bind(options); })
+                .AddFacebook(options => { Configuration.GetSection("Facebook").Bind(options); })
                 .AddMicrosoftAccount(options =>
                 {
-                    options.ClientId = "ab2ce88f-efef-49c5-b89f-87a87b7dfc2c";
-                    options.ClientSecret = "wfileLMHY~_~hcONF32735{";
+                    Configuration.GetSection("Microsoft").Bind(options);
                 })
                 .AddGitHub(options => { Configuration.GetSection("GitHub").Bind(options); })
-                .AddTwitter(options =>
-                {
-                    options.ConsumerKey = "SOxtwARctjMn5ZYouNTcBopMs";
-                    options.ConsumerSecret = "f8ZyXWxa7VVdU79cS3KM7hUlx0Z15pmTkCxispLU4JrKkA8B4E";
-                });
-                // services.AddMicrosoftIdentityWebApiAuthentication(Configuration, "AzureAD")
-                ;
+                .AddTwitter(options => { Configuration.GetSection("Twitter").Bind(options); })
+                .AddOpenIdConnect(options => Configuration.Bind("AzureAd", options));
+            ;
             services.ConfigureExternalAuth();
 
             // if you want to secure some controllers/actions within the same project with JWT
@@ -116,6 +100,8 @@ namespace IdentityOAuthSpaExtensions.Example
             }
 
             app.UseRouting();
+
+            app.UseMiddleware<ExternalAuthMiddleware>();
 
             app.UseAuthentication();
             app.UseAuthorization();
