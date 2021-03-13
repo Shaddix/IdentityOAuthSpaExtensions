@@ -2,9 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 

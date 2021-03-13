@@ -1,17 +1,23 @@
 # IdentityOAuthSpaExtensions
-**.Net 5.0** library that allows easy integration of external OAuth providers into your SPA. It has even more perks if you use IdentityServer. Here's the [demo](https://oauth.arturdr.ru) if you care.
+**.Net 5.0** library that allows easy integration of external OAuth providers (Google, Facebook, etc.) into your SPA. It is most useful together with IdentityServer.
+
+With *IdentityOAuthSpaExtensions* you can integrate *Login with Facebook* or *Login with Google* buttons right inside your SPA (React/Angular/whatever) without the need to redirect to server-side UI for authentication. 
+
+Here's the [demo](https://oauth.arturdr.ru) if you care. The shown page uses vanilla JS, and has several buttons to log in via different providers.
 ![Example workflow](example.gif)
 
 # What you can do with this library?
+- You could add *Social Log In* buttons inside your SPA (so you don't need to show default Identity UI to your users)
 - On SPA side you could receive AuthCode from OAuth provider ([Authorization Code Flow](https://oauth.net/2/grant-types/authorization-code/))
 - On backend you could verify AuthCode (passed from your SPA) and get user information from oAuth provider
 - If you're using IdentityServer, you could plug-in an [extension grant](http://docs.identityserver.io/en/latest/topics/extension_grants.html) that will allow you to issue your own JWT tokens in exchange for AuthCode (and optionally create new users).
 
 
 # Goal
-The project goal is to allow easy integration of external OAuth providers (e.g. Google, Facebook, etc.) into your SPA applications (React, Angular, plain-old-js, whatever), with the minimum amount of needed code.
-This is a backend library, that integrates with Asp.Net Core 3.1+.
+The project goal is to allow integration of external OAuth providers (e.g. Google, Facebook, etc.) into your SPA applications (React, Angular, plain-old-js, whatever), into your SinglePageApplications with minimum amount of needed code, and without the need to show Identity UI to the user.
+This is a backend library, that integrates with Asp.Net Core 5.0+.
 The library is kept minimal, as we reuse all [official](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/social/?view=aspnetcore-2.2) and [non-official](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/social/other-logins?view=aspnetcore-2.2) authentication providers (i.e. library doesn't need to be updated when those external providers change).
+Library is significantly reworked in v1.0, so there's no provider-specific code at all.
 
 # How to
 Just install nuget to add the library to your project.
@@ -21,27 +27,28 @@ Just install nuget to add the library to your project.
 You could also take a look at [IdentityOAuthSpaExtensions.Example](IdentityOAuthSpaExtensions.Example) for example usage (keep in mind, that there are hardcoded ClientId/ClientSecret for FB and Google within Example app. They are for demo purposes and everyone can use them, so beware).
 
 ## Backend
-From `ConfigureServices` call `services.ConfigureExternalAuth(Configuration)`.
+1. From `ConfigureServices` call `services.ConfigureExternalAuth()`.
 
-That's it. Just `.AddAuthentication.AddGoogle()` or `.AddFacebook()` to make it work. Follow instructions on how to set up applications on OAuth provider side. You should specify `https://YOUR_BACKEND/external-auth/callback-{providerName}` as a return URL (`https://YOUR_BACKEND/external-auth/callback-google`, `https://YOUR_BACKEND/external-auth/callback-facebook`, etc.)
+1. From `Configure` call `app.UseMiddleware<ExternalAuthMiddleware>();` BEFORE `UseAuthentication()`.
 
-After that you will be able to request AuthCode from SPA (instructions below), and manually verify AuthCode on backend:
-`this.HttpContext.RequestServices.GetService<ExternalAuthService>().GetExternalUserId(providerName, authCode)`
-or
-`this.HttpContext.RequestServices.GetService<ExternalAuthService>().GetExternalUserInfo(providerName, authCode)`
+1. If you are using IdentityServer, you'd also need to add the grant validator:
+```services.AddIdentityServer().AddExtensionGrantValidator<ExternalAuthenticationGrantValidator<IdentityUser, string>>()```.
+
+1. That's it. Just `.AddAuthentication().AddGoogle()` or `.AddFacebook()` to make it work. Follow instructions on how to set up applications on OAuth provider side.
+
 
 # Frontend
 ## To get AuthCode:
-- Create oAuthCode handlers, e.g.
-  ```
+1. Create oAuthCode handlers, e.g.
+```
     function externalAuthSuccess(provider, code) {
         alert(`Provider: ${provider}, code: ${code}`);
     }
     function externalAuthError(provider, error, errorDescription) {
         alert(`Provider: ${provider}, error: ${error}, ${errorDescription}`);
     }
-	```
-- Subscribe to messages on a window: ```window.addEventListener("message", this.oAuthCodeReceived, false);``` and provide oAuthCodeReceived implementation like:
+```
+2. Subscribe to messages on a window: ```window.addEventListener("message", this.oAuthCodeReceived, false);``` and provide oAuthCodeReceived implementation like:
 ```
     function oAuthCodeReceived(message) {
         if (message.data && message.data.type === 'oauth-result') {
@@ -54,9 +61,10 @@ or
     }
 ```
 
-- Open authentication dialog in new window pointing to `http://YOUR_BACKEND_HOST/external-auth/challenge?provider=${provider}`. E.g.:
+3. Open authentication dialog in new window pointing to `http://YOUR_BACKEND_HOST/external-auth/challenge?provider=${provider}`. E.g.:
 ```window.open(`${window.location.protocol}//${window.location.hostname}:${window.location.port}/external-auth/challenge?provider=${provider}`, undefined, 'toolbar=no,menubar=no,directories=no,status=no,width=800,height=600');```
-- When authentication succeeds/errors, your callback functions (externalAuthSuccess/externalAuthError) will be called.
+
+4. When authentication succeeds/errors, your callback functions (externalAuthSuccess/externalAuthError) will be called.
 
 ## To authenticate (get access_token) using IdentityServer
 - Get AuthCode (see above)
@@ -81,10 +89,6 @@ This library perfectly supports this scenario in combination with [IdentityServe
 To integrate with IdentityServer all you need to do is call
 ```services.AddIdentityServer().AddExtensionGrantValidator<ExternalAuthenticationGrantValidator<IdentityUser, string>>()```.
 That will register an extension grant named `external` and you could authenticate from JS as [described above](#to-authenticate-get-access_token-using-identityserver)
-
-### Configuration
-By default, `ExternalAuthenticationGrantValidator` is configured to create new users automatically, when they successfully authenticate via oAuth. You could change that behavior by setting:
-```services.ConfigureExternalAuth(Configuration, options => { options.CreateUserIfNotFound = false; });```.
 
 ### Customization
 You could inherit from `ExternalAuthenticationGrantValidator<IdentityUser, string>` and provide your custom logic for any of the following methods:

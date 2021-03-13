@@ -1,7 +1,7 @@
 const backendUri = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`;
 const getChallengeEndpoint = (provider) =>
     `${backendUri}/external-auth/challenge?provider=${provider}`;
-
+let _handler;
 function GetOAuthCode(provider) {
     function createOAuthMessageHandler(resolve, reject) {
         const handler = (event) => {
@@ -26,9 +26,13 @@ function GetOAuthCode(provider) {
     }
 
     return new Promise((resolve, reject) => {
+        if (_handler) {
+            window.removeEventListener('message', _handler, false);
+        }
+        _handler =createOAuthMessageHandler(resolve, reject); 
         window.addEventListener(
             'message',
-            createOAuthMessageHandler(resolve, reject),
+            _handler,
             false,
         );
         window.open(

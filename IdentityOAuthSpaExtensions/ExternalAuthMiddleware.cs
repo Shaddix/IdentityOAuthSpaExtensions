@@ -17,15 +17,32 @@ using Microsoft.Net.Http.Headers;
 
 namespace IdentityOAuthSpaExtensions
 {
+    /// <summary>
+    /// Handles Challenge ('/external-auth/challenge'),
+    /// intermediate result page ('oauth-result.html') that sends Message to initial browser window
+    /// and intercepts sign-in callbacks ('/signin-google', '/signin-twitter', etc.) 
+    /// </summary>
     public class ExternalAuthMiddleware
     {
         private readonly RequestDelegate _next;
 
-        // key is CallbackPath (e.g. '/signin-google' or '/signin-oidc'), value is ProviderName (e.g. 'Google', 'OpenIdConnect')
+        /// <summary>
+        /// key is CallbackPath (e.g. '/signin-google' or '/signin-oidc'), value is ProviderName (e.g. 'Google', 'OpenIdConnect')
+        /// </summary>
         private static Dictionary<string, string> _callbackPathToProviderNameDictionary = new();
 
-        // hash set to speed up checking whether provider exists in _callbackPathToProviderNameDictionary or not
+        /// <summary>
+        /// hash set to speed up checking whether provider exists in _callbackPathToProviderNameDictionary or not
+        /// </summary>
         private static HashSet<string> _providersAddedToCallbackPath = new();
+
+        /// <summary>
+        /// If this cookie is present, we intercept requests to signin callbacks
+        /// ('/signin-google', etc.).
+        /// If it's not present, we don't intercept them, since it might be
+        /// regular authentication over Identity UI
+        /// </summary>
+        private const string SpaAuthenticationCookieName = ".IdentityOauthSpa";
 
         public ExternalAuthMiddleware(RequestDelegate next)
         {
@@ -34,24 +51,29 @@ namespace IdentityOAuthSpaExtensions
 
         public async Task InvokeAsync(HttpContext context)
         {
-            if (context.Request.Path == "/external-auth/challenge")
+            HttpRequest request = context.Request;
+            if (request.Path == "/external-auth/challenge")
             {
                 await HandleChallenge(context);
                 return;
             }
 
-            if (context.Request.Path.StartsWithSegments("/external-auth/oauth-result"))
+            if (request.Path.StartsWithSegments("/external-auth/oauth-result"))
             {
                 await ReturnOAuthHtml(context);
                 return;
             }
 
             if (_callbackPathToProviderNameDictionary.TryGetValue(
-                context.Request.Path.ToString(),
+                request.Path.ToString(),
                 out string providerName))
             {
-                await HandleSignInCallback(context, providerName);
-                return;
+                if (context.Request.Cookies.ContainsKey(SpaAuthenticationCookieName))
+                {
+                    await HandleSignInCallback(context, providerName);
+                    context.Response.Cookies.Delete(SpaAuthenticationCookieName);
+                    return;
+                }
             }
 
             await _next(context);
@@ -61,14 +83,25 @@ namespace IdentityOAuthSpaExtensions
         {
             var provider = context.Request.Query["provider"].ToString();
 
+            SaveCallbackPathIfNeeded(context, provider);
+
+            var challengeResult = new ChallengeResult(provider, null);
+
+            await challengeResult.ExecuteResultAsync(new ActionContext(context,
+                new RouteData(context.Request.RouteValues),
+                new ActionDescriptor()));
+
+            AdjustPathInCookies(context);
+        }
+
+        private void SaveCallbackPathIfNeeded(HttpContext context, string provider)
+        {
             if (!_providersAddedToCallbackPath.Contains(provider))
             {
                 var callbackPath = GetCallbackPath(context, provider);
                 _callbackPathToProviderNameDictionary[callbackPath] = provider;
                 _providersAddedToCallbackPath.Add(provider);
             }
-
-            await HandleChallenge(context, provider);
         }
 
         private string GetCallbackPath(HttpContext context, string provider)
@@ -82,16 +115,6 @@ namespace IdentityOAuthSpaExtensions
                     IAuthenticationHandler;
             var options = handler.GetOptions();
             return options.CallbackPath.ToString();
-        }
-
-        private static async Task HandleChallenge(HttpContext context, string provider)
-        {
-            var challengeResult = new ChallengeResult(provider, null);
-
-            await challengeResult.ExecuteResultAsync(new ActionContext(context,
-                new RouteData(context.Request.RouteValues),
-                new ActionDescriptor()));
-            AdjustPathInCookies(context);
         }
 
         private static string _oauthHtmlContent;
@@ -111,7 +134,7 @@ namespace IdentityOAuthSpaExtensions
             await context.Response.WriteHtmlAsync(_oauthHtmlContent);
         }
 
-        private static async Task HandleSignInCallback(HttpContext context, string provider)
+        private async Task HandleSignInCallback(HttpContext context, string provider)
         {
             var body = await new StreamReader(context.Request.Body).ReadToEndAsync();
             if (string.IsNullOrEmpty(body))
@@ -126,7 +149,7 @@ namespace IdentityOAuthSpaExtensions
             context.Response.Redirect(returnUrl + $"#provider={provider}&code=" + encodedBody);
         }
 
-        private static void AdjustPathInCookies(HttpContext context)
+        private void AdjustPathInCookies(HttpContext context)
         {
             var cookies = context.Response.Headers[HeaderNames.SetCookie];
             var newCookies = new List<string>();
@@ -137,6 +160,12 @@ namespace IdentityOAuthSpaExtensions
                 newCookies.Add(cookie.ToString());
             }
 
+            var cookieToRedirectToOauthResult =
+                new SetCookieHeaderValue(SpaAuthenticationCookieName, "1")
+                {
+                    Path = "/"
+                };
+            newCookies.Add(cookieToRedirectToOauthResult.ToString());
             context.Response.Headers[HeaderNames.SetCookie] =
                 new StringValues(newCookies.ToArray());
         }
