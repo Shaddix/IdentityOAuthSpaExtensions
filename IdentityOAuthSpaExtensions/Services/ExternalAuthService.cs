@@ -3,9 +3,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityOAuthSpaExtensions.Wrappers;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 
 namespace IdentityOAuthSpaExtensions.Services
 {

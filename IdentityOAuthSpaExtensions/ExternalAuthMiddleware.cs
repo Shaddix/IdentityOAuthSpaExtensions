@@ -44,11 +44,17 @@ namespace IdentityOAuthSpaExtensions
         /// </summary>
         private const string SpaAuthenticationCookieName = ".IdentityOauthSpa";
 
+        /// <summary>
+        /// Constructs ExternalAuthMiddleware
+        /// </summary>
         public ExternalAuthMiddleware(RequestDelegate next)
         {
             _next = next;
         }
 
+        /// <summary>
+        /// Intercepts external authentication URLs 
+        /// </summary>
         public async Task InvokeAsync(HttpContext context)
         {
             HttpRequest request = context.Request;

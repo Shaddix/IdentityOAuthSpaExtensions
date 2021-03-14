@@ -133,12 +133,12 @@ namespace IdentityOAuthSpaExtensions.Services
         /// You could override it and provide your own implementation.
         /// </summary>
         /// <param name="externalUserInfo">User information from OAuth provider</param>
-        protected virtual async Task<TUser> CreateNewUser(ExternalUserInfo externalUserInfo)
+        protected virtual Task<TUser> CreateNewUser(ExternalUserInfo externalUserInfo)
         {
-            return new TUser()
+            return Task.FromResult(new TUser()
             {
                 UserName = GetUserName(externalUserInfo),
-            };
+            });
         }
 
         /// <summary>

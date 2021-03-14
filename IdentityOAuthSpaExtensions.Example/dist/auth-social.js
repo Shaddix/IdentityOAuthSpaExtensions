@@ -1,7 +1,7 @@
 const backendUri = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`;
 const getChallengeEndpoint = (provider) => `${backendUri}/external-auth/challenge?provider=${provider}`;
 let _currentOauthResultsHandler;
-export function getOAuthCode(provider) {
+export function getOAuthCode33(provider) {
     function createOAuthMessageHandler(resolve, reject) {
         const handler = (event) => {
             if (event.data && event.data.type === 'oauth-result') {

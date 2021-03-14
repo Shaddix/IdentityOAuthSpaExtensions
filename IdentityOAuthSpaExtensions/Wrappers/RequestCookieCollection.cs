@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace IdentityOAuthSpaExtensions.Wrappers
 {
-    public class RequestCookieCollection : Dictionary<string, string>, IRequestCookieCollection
+    internal class RequestCookieCollection : Dictionary<string, string>, IRequestCookieCollection
     {
         public RequestCookieCollection(IDictionary<string, string> dictionary) : base(dictionary)
         {

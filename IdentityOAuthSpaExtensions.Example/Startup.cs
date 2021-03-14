@@ -101,7 +101,7 @@ namespace IdentityOAuthSpaExtensions.Example
 
             app.UseRouting();
 
-            app.UseMiddleware<ExternalAuthMiddleware>();
+            app.UseExternalAuth();
 
             app.UseAuthentication();
             app.UseAuthorization();

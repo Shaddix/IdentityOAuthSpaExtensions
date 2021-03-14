@@ -9,41 +9,43 @@
 <body>
 <div>
     <div>
-        <h1>Get OAuth Code</h1>
-        <button onclick="GetOAuthCode('Google')">Google</button>
-        <button onclick="GetOAuthCode('Facebook')">Facebook</button>
-        <button onclick="GetOAuthCode('Microsoft')">Microsoft</button>
-        <button onclick="GetOAuthCode('OpenIdConnect')">AzureAD</button>
-        <button onclick="GetOAuthCode('GitHub')">GitHub</button>
-        <button onclick="GetOAuthCode('Twitter')">Twitter</button>
-    </div>
-
-    <div>
         <h1>Sign-in via OAuth</h1>
-        <button onclick="SignInVia('Google')">Google</button>
-        <button onclick="SignInVia('Facebook')">Facebook</button>
-        <button onclick="SignInVia('Microsoft')">Microsoft</button>
-        <button onclick="SignInVia('OpenIdConnect')">AzureAD</button>
-        <button onclick="SignInVia('GitHub')">GitHub</button>
-        <button onclick="SignInVia('Twitter')">Twitter</button>
+        <button onclick="signInVia('Google')">Google</button>
+        <button onclick="signInVia('Facebook')">Facebook</button>
+        <button onclick="signInVia('Microsoft')">Microsoft</button>
+        <button onclick="signInVia('OpenIdConnect')">AzureAD</button>
+        <button onclick="signInVia('GitHub')">GitHub</button>
+        <button onclick="signInVia('Twitter')">Twitter</button>
     </div>
+    
+    @* <div> *@
+    @*     <h1>Get OAuth Code</h1> *@
+    @*     <button onclick="GetOAuthCode('Google')">Google</button> *@
+    @*     <button onclick="GetOAuthCode('Facebook')">Facebook</button> *@
+    @*     <button onclick="GetOAuthCode('Microsoft')">Microsoft</button> *@
+    @*     <button onclick="GetOAuthCode('OpenIdConnect')">AzureAD</button> *@
+    @*     <button onclick="GetOAuthCode('GitHub')">GitHub</button> *@
+    @*     <button onclick="GetOAuthCode('Twitter')">Twitter</button> *@
+    @* </div> *@
+    
     <div>
         <h1>Values</h1>
-        <button onclick="GetValues()">Get Values</button>
+        <button onclick="getValues()">Get Values</button>
     </div>
 
 </div>
-<script src="js/auth-social.js"></script>
-<script>
-    function SignInVia(provider) {
-        GetOAuthCode(provider).then(function(data) {
-            GetAccessToken(data.provider, data.code);
-        });
+<script type="module">
+  import {
+    getOAuthCode
+  } from '/js/auth-social.js';
+    let _accessToken = '';
+    async function signInVia(provider) {
+        const data = await getOAuthCode(provider);
+        await getAccessToken(data.provider, data.code);
     }
 
-    function GetAccessToken(provider, code) {
-
-        fetch(`/connect/token`,
+    async function getAccessToken(provider, code) {
+        const response = await fetch(`/connect/token`,
                 {
                     method: 'POST',
                     body: `grant_type=external&scope=local&provider=${provider}&code=${code}`,
@@ -51,15 +53,13 @@
                         'Authorization': `Basic Y2xpZW50OnNlY3JldA==`, //base64 encoded 'client:secret'
                         'Content-Type': 'application/x-www-form-urlencoded',
                     }
-                })
-            .then(response => response.json())
-            .then(dt => {
-                _accessToken = dt.access_token;
-                alert(`access_token: ${dt.access_token}`);
-            });
+                });
+        const jsonData = await response.json();
+        _accessToken = jsonData.access_token;
+        alert(`access_token: ${_accessToken}`);
     }
 
-    function GetValues() {
+    function getValues() {
         fetch(`/api/values`,
                 {
                     headers: {
@@ -84,6 +84,10 @@
                 }
             });
     }
+    
+    window.signInVia = signInVia;
+    window.getAccessToken = getAccessToken;
+    window.getValues = getValues;
 </script>
 </body>
 </html>

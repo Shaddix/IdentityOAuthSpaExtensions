@@ -14,73 +14,61 @@ Here's the [demo](https://oauth.arturdr.ru) if you care. The shown page uses van
 
 
 # Goal
-The project goal is to allow integration of external OAuth providers (e.g. Google, Facebook, etc.) into your SPA applications (React, Angular, plain-old-js, whatever), into your SinglePageApplications with minimum amount of needed code, and without the need to show Identity UI to the user.
+The project goal is to allow integration of external OAuth providers (e.g. Google, Facebook, etc.) into your SinglePageApplications applications (React, Angular, plain-old-js, whatever), with minimum amount of needed code, and without the need to show Identity UI to the user.
+
 This is a backend library, that integrates with Asp.Net Core 5.0+.
+
 The library is kept minimal, as we reuse all [official](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/social/?view=aspnetcore-2.2) and [non-official](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/social/other-logins?view=aspnetcore-2.2) authentication providers (i.e. library doesn't need to be updated when those external providers change).
+
 Library is significantly reworked in v1.0, so there's no provider-specific code at all.
 
 # How to
-Just install nuget to add the library to your project.
 
-```dotnet add package IdentityOAuthSpaExtensions```
+## Backend
+1. Install nuget to add the library to your project.
+
+   ```dotnet add package IdentityOAuthSpaExtensions```
+
+1. From `ConfigureServices` call `services.ConfigureExternalAuth()`.
+
+1. From `Configure` call `app.UseExternalAuth()` BEFORE `UseAuthentication()`.
+
+1. If you are using IdentityServer, add the grant validator:
+    ```services.AddIdentityServer().AddExtensionGrantValidator<ExternalAuthenticationGrantValidator<IdentityUser, string>>()```.
+
+1. That's it. Just `.AddAuthentication().AddGoogle()` or `.AddFacebook()` as usual. Follow instructions on how to set up applications on [OAuth provider side](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/social/facebook-logins?view=aspnetcore-5.0).
 
 You could also take a look at [IdentityOAuthSpaExtensions.Example](IdentityOAuthSpaExtensions.Example) for example usage (keep in mind, that there are hardcoded ClientId/ClientSecret for FB and Google within Example app. They are for demo purposes and everyone can use them, so beware).
 
-## Backend
-1. From `ConfigureServices` call `services.ConfigureExternalAuth()`.
-
-1. From `Configure` call `app.UseMiddleware<ExternalAuthMiddleware>();` BEFORE `UseAuthentication()`.
-
-1. If you are using IdentityServer, you'd also need to add the grant validator:
-```services.AddIdentityServer().AddExtensionGrantValidator<ExternalAuthenticationGrantValidator<IdentityUser, string>>()```.
-
-1. That's it. Just `.AddAuthentication().AddGoogle()` or `.AddFacebook()` to make it work. Follow instructions on how to set up applications on OAuth provider side.
-
-
-# Frontend
-## To get AuthCode:
-1. Create oAuthCode handlers, e.g.
-```
-    function externalAuthSuccess(provider, code) {
-        alert(`Provider: ${provider}, code: ${code}`);
+## Frontend
+1. Copy the following [typescript](https://raw.githubusercontent.com/Shaddix/IdentityOAuthSpaExtensions/master/IdentityOAuthSpaExtensions.Example/wwwroot/js/auth-social.ts) (or [compiled JS](https://raw.githubusercontent.com/Shaddix/IdentityOAuthSpaExtensions/master/IdentityOAuthSpaExtensions.Example/wwwroot/js/auth-social.js)) file into your sourcecode (adjust the `backendUri` variable on top if your SPA is on different host than backend).
+1. Place some SocialLogin buttons in your SPA and execute `getOAuthCode('Google')` from onClick handler.
+1. Request access token from your Identity Server, passing received oAuthCode to it. In total you should have something like this:
+    ```
+    // call this function from SocialLogin buttons onClick  
+    async function signInVia(provider) {
+        const data = await getOAuthCode(provider);
+        await getAccessToken(data.provider, data.code);
     }
-    function externalAuthError(provider, error, errorDescription) {
-        alert(`Provider: ${provider}, error: ${error}, ${errorDescription}`);
-    }
-```
-2. Subscribe to messages on a window: ```window.addEventListener("message", this.oAuthCodeReceived, false);``` and provide oAuthCodeReceived implementation like:
-```
-    function oAuthCodeReceived(message) {
-        if (message.data && message.data.type === 'oauth-result') {
-            if (data.code) {
-                externalAuthSuccess(data.provider, data.code);
-            } else {
-                externalAuthError(data.provider, data.error, data.errorDescription);
-            }
-        }
-    }
-```
 
-3. Open authentication dialog in new window pointing to `http://YOUR_BACKEND_HOST/external-auth/challenge?provider=${provider}`. E.g.:
-```window.open(`${window.location.protocol}//${window.location.hostname}:${window.location.port}/external-auth/challenge?provider=${provider}`, undefined, 'toolbar=no,menubar=no,directories=no,status=no,width=800,height=600');```
-
-4. When authentication succeeds/errors, your callback functions (externalAuthSuccess/externalAuthError) will be called.
-
-## To authenticate (get access_token) using IdentityServer
-- Get AuthCode (see above)
-- Call 
- ```
-    fetch(`/connect/token`,
+    async function getAccessToken(provider, code) {
+        const response = await fetch('/connect/token',
                 {
                     method: 'POST',
-                    body: `grant_type=external&scope=api1&provider=${provider}&code=${code}`,
+                    // you will need to adjust SCOPE here
+                    body: grant_type=external&scope=local&provider=${provider}&code=${code}`,
                     headers: {
-                        'Authorization': `Basic Y2xpZW50OnNlY3JldA==`, //base64 encoded 'client:secret'
+                        // you definitely need to use clien/secret of YOUR APP here
+                        'Authorization': 'Basic Y2xpZW50OnNlY3JldA==', //base64 encoded 'client:secret'
                         'Content-Type': 'application/x-www-form-urlencoded',
                     }
-                })
-```
-to obtain access_token, that you could later use in Authorization header.
+                });
+        const jsonData = await response.json();
+        _accessToken = jsonData.access_token;
+        alert('access_token: '+ _accessToken);
+        // make some requests to your API using this token!
+    }    
+   ```
 
 # Identity Server integration
 ## Adding external grant (validate Auth Code and issue own JWT)

@@ -3,12 +3,12 @@
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>1.0.1</PackageVersion>
+        <PackageVersion>1.0.2</PackageVersion>
         <Title>IdentityOAuthSpaExtensions</Title>
         <Authors>Artur Drobinskiy</Authors>
         <Description>Allows easy integration of external OAuth providers into your SPA</Description>
         <RepositoryUrl>https://github.com/Shaddix/IdentityOAuthSpaExtensions</RepositoryUrl>
-        <PackageLicenseUrl>https://github.com/Shaddix/IdentityOAuthSpaExtensions/blob/master/LICENSE.md</PackageLicenseUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryType>GitHub</RepositoryType>
     </PropertyGroup>
 
@@ -19,9 +19,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="5.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="5.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="5.0.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="5.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="5.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="5.0.0" />
     </ItemGroup>
 
     <ItemGroup>

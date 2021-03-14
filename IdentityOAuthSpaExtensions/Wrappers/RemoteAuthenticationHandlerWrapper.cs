@@ -11,11 +11,11 @@ using Microsoft.Extensions.Primitives;
 
 namespace IdentityOAuthSpaExtensions.Wrappers
 {
-    public class RemoteAuthenticationHandlerWrapper<TOptions> : IExternalAuthenticationWrapper
+    internal class RemoteAuthenticationHandlerWrapper<TOptions> : IExternalAuthenticationWrapper
         where TOptions : RemoteAuthenticationOptions, new()
     {
         private readonly RemoteAuthenticationHandler<TOptions> _authHandler;
-        protected readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public RemoteAuthenticationHandlerWrapper(RemoteAuthenticationHandler<TOptions> authHandler,
             IHttpContextAccessor httpContextAccessor)

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace IdentityOAuthSpaExtensions.Wrappers
 {
-    public static class ReflectionHelpers
+    internal static class ReflectionHelpers
     {
         public static void SetHttpContext(this IAuthenticationHandler authenticationHandler,
             HttpContext httpContext)
