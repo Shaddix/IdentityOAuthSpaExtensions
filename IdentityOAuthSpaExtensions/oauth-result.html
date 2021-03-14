@@ -18,7 +18,7 @@
     }
 
     // if we don't receive an access token then login failed and/or the user has not connected properly
-    var code = encodeURIComponent(getParameterByName('code'));
+    var code = getParameterByName('code');
     var message = {
         type: 'oauth-result',
         provider: getParameterByName('provider'),

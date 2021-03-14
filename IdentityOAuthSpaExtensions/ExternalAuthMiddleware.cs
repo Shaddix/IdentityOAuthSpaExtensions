@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -112,11 +113,24 @@ namespace IdentityOAuthSpaExtensions
 
         private string GetCallbackPath(HttpContext context, string provider)
         {
-            var authenticationOptionsMonitor = context.RequestServices
+            string lowCaseProvider = provider.ToLowerInvariant();
+            IOptionsMonitor<AuthenticationOptions> authenticationOptionsMonitor = context
+                .RequestServices
                 .GetRequiredService<IOptionsMonitor<AuthenticationOptions>>();
-            var schemes = authenticationOptionsMonitor.CurrentValue.Schemes.ToList();
-            var authenticationScheme = schemes.First(x => x.Name == provider);
-            var handler =
+            List<AuthenticationSchemeBuilder> schemes =
+                authenticationOptionsMonitor.CurrentValue.Schemes.ToList();
+            AuthenticationSchemeBuilder authenticationScheme;
+            try
+            {
+                authenticationScheme = schemes.First(x => x.Name.ToLower() == lowCaseProvider);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException(
+                    $"Provider with name '{provider}' wasn't found among registered providers. Check spelling, or check that you added the provider.");
+            }
+
+            IAuthenticationHandler handler =
                 context.RequestServices.GetRequiredService(authenticationScheme.HandlerType) as
                     IAuthenticationHandler;
             var options = handler.GetOptions();

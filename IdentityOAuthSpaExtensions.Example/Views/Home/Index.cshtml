@@ -48,7 +48,7 @@
         const response = await fetch(`/connect/token`,
                 {
                     method: 'POST',
-                    body: `grant_type=external&scope=local&provider=${provider}&code=${code}`,
+                    body: `grant_type=external&scope=local&provider=${provider}&code=${encodeURIComponent(code)}`,
                     headers: {
                         'Authorization': `Basic Y2xpZW50OnNlY3JldA==`, //base64 encoded 'client:secret'
                         'Content-Type': 'application/x-www-form-urlencoded',
