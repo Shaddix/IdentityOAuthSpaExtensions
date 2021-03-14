@@ -35,6 +35,8 @@ Library is significantly reworked in v1.0, so there's no provider-specific code 
 
 1. If you are using IdentityServer, add the grant validator:
     ```services.AddIdentityServer().AddExtensionGrantValidator<ExternalAuthenticationGrantValidator<IdentityUser, string>>()```.
+   
+    Also include 'external' grant type to existing grant types of your Client (SPA)
 
 1. That's it. Just `.AddAuthentication().AddGoogle()` or `.AddFacebook()` as usual. Follow instructions on how to set up applications on [OAuth provider side](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/social/facebook-logins?view=aspnetcore-5.0).
 
