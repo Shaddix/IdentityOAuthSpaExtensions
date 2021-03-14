@@ -1,5 +1,5 @@
 # IdentityOAuthSpaExtensions
-**.Net 5.0** library that allows easy integration of external OAuth providers (Google, Facebook, etc.) into your SPA. It is most useful together with IdentityServer.
+**.NET 5.0** library (maintained since 2019) that allows easy integration of external OAuth providers (Google, Facebook, etc.) into your SPA. It is most useful together with IdentityServer.
 
 With *IdentityOAuthSpaExtensions* you can integrate *Login with Facebook* or *Login with Google* buttons right inside your SPA (React/Angular/whatever) without the need to redirect to server-side UI for authentication. 
 
