@@ -1,6 +1,6 @@
 {
   "name": "@shaddix/identity-oauth-spa-extensions-buil",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "private": true,
   "dependencies": {
     "concurrently": "5.2.0",
@@ -9,7 +9,7 @@
     "rimraf": "3.0.2"
   },
   "scripts": {
-    "build-dotnet-version": "cross-env-shell dotnet publish IdentityOAuthSpaExtensions.sln -c Release -o publish $VERSION",
+    "build-dotnet-version": "cross-env-shell dotnet publish IdentityOAuthSpaExtensions.Example/IdentityOAuthSpaExtensions.Example.csproj -c Release -o publish $VERSION",
     "build-dotnet": "rimraf publish && cross-env VERSION=\\\"/p:Version\\\"=\\\"$npm_package_version\\\" yarn build-dotnet-version",
     "docker-build": "cross-env-shell docker build -t registry.gitlab.com/artur.drobinskiy/identity-oauth-spa-extensions:latest -t registry.gitlab.com/artur.drobinskiy/identity-oauth-spa-extensions:$npm_package_version -f Dockerfile publish",
     "docker-push": "cross-env-shell docker push registry.gitlab.com/artur.drobinskiy/identity-oauth-spa-extensions:latest && cross-env-shell docker push registry.gitlab.com/artur.drobinskiy/identity-oauth-spa-extensions:$npm_package_version",
