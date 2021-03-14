@@ -5,4 +5,4 @@ WORKDIR /app
 EXPOSE 80
 COPY . .
 
-ENTRYPOINT dotnet IdentityOAuthSpaExtensions.dll
+ENTRYPOINT dotnet IdentityOAuthSpaExtensions.Example.dll
