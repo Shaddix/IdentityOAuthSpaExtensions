@@ -22,6 +22,7 @@ namespace IdentityOAuthSpaExtensions.Services
         private readonly UserManager<TUser> _userManager;
         private readonly IOptionsMonitor<ExternalAuthOptions> _options;
         private readonly ILogger<ExternalAuthenticationGrantValidator<TUser, TKey>> _logger;
+        protected ExtensionGrantValidationContext Context { get; private set; }
 
         public ExternalAuthenticationGrantValidator(
             ExternalAuthService externalAuthService,
@@ -38,6 +39,7 @@ namespace IdentityOAuthSpaExtensions.Services
 
         public virtual async Task ValidateAsync(ExtensionGrantValidationContext context)
         {
+            Context = context;
             var oAuthCode = context.Request.Raw.Get("code");
             var providerName = context.Request.Raw.Get("provider");
             if (string.IsNullOrEmpty(oAuthCode)

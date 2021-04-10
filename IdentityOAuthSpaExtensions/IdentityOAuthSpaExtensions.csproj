@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>1.0.5</PackageVersion>
+        <PackageVersion>1.0.6</PackageVersion>
         <Title>IdentityOAuthSpaExtensions</Title>
         <Authors>Artur Drobinskiy</Authors>
         <Description>Allows easy integration of external OAuth providers into your SPA</Description>
