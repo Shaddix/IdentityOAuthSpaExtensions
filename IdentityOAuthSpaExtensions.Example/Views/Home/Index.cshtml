@@ -31,6 +31,8 @@
     <div>
         <h1>Values</h1>
         <button onclick="getValues()">Get Values</button>
+        <button onclick="getDocuments()">Get Documents</button>
+        <button onclick="getUsers()">Get Users</button>
     </div>
 
 </div>
@@ -59,8 +61,8 @@
         alert(`access_token: ${_accessToken}`);
     }
 
-    function getValues() {
-        fetch(`/api/values`,
+    function getData(url) {
+        fetch(url,
                 {
                     headers: {
                         'Authorization': `Bearer ${_accessToken}`,
@@ -84,10 +86,22 @@
                 }
             });
     }
+    function getValues() {
+        getData('/api/values');
+    }
+    function getUsers() {
+        getData('/api/permissions/users');
+        }
     
+    function getDocuments() {
+        getData('/api/permissions/documents');
+        }
+        
     window.signInVia = signInVia;
     window.getAccessToken = getAccessToken;
     window.getValues = getValues;
+    window.getDocuments = getDocuments;
+    window.getUsers = getUsers;
 </script>
 </body>
 </html>
