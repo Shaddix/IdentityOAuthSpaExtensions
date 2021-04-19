@@ -1,7 +1,10 @@
-﻿using IdentityOAuthSpaExtensions.Services;
+﻿using IdentityOAuthSpaExtensions.Example.Permissions;
+using IdentityOAuthSpaExtensions.Services;
+using IdentityServer4.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +26,9 @@ namespace IdentityOAuthSpaExtensions.Example
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
+            services.AddTransient<IProfileService, AppProfileService>();
+
             services.AddControllers();
 
             services.AddDbContext<IdentityContext>(options => options
