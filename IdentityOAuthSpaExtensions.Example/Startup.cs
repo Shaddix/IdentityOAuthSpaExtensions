@@ -31,56 +31,88 @@ namespace IdentityOAuthSpaExtensions.Example
 
             services.AddControllers();
 
-            services.AddDbContext<IdentityContext>(options => options
-                .UseInMemoryDatabase("OAuthTest"));
+            services.AddDbContext<IdentityContext>(
+                options => options.UseInMemoryDatabase("OAuthTest")
+            );
 
-            services.AddDefaultIdentity<IdentityUser>(options =>
-                {
-                    options.SignIn.RequireConfirmedAccount = false;
-                    options.Lockout.AllowedForNewUsers = false;
-                })
+            services
+                .AddDefaultIdentity<IdentityUser>(
+                    options =>
+                    {
+                        options.SignIn.RequireConfirmedAccount = false;
+                        options.Lockout.AllowedForNewUsers = false;
+                    }
+                )
                 .AddRoles<IdentityRole>()
                 .AddRoleManager<RoleManager<IdentityRole>>()
                 .AddEntityFrameworkStores<IdentityContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddIdentityServer()
+            services
+                .AddIdentityServer()
                 .AddDeveloperSigningCredential()
                 .AddInMemoryApiScopes(Configuration.GetSection("IdentityServer:ApiScopes"))
                 .AddInMemoryApiResources(Configuration.GetSection("IdentityServer:ApiResources"))
                 .AddInMemoryClients(Configuration.GetSection("IdentityServer:Clients"))
                 .AddExtensionGrantValidator<
-                    ExternalAuthenticationGrantValidator<IdentityUser, string>>();
+                    ExternalAuthenticationGrantValidator<IdentityUser, string>
+                >();
             ;
 
-            services.AddAuthentication()
-                .AddGoogle(options => { Configuration.GetSection("Google").Bind(options); })
-                .AddFacebook(options => { Configuration.GetSection("Facebook").Bind(options); })
-                .AddMicrosoftAccount(options =>
-                {
-                    Configuration.GetSection("Microsoft").Bind(options);
-                })
-                .AddGitHub(options => { Configuration.GetSection("GitHub").Bind(options); })
-                .AddTwitter(options => { Configuration.GetSection("Twitter").Bind(options); })
+            services
+                .AddAuthentication()
+                .AddGoogle(
+                    options =>
+                    {
+                        Configuration.GetSection("Google").Bind(options);
+                    }
+                )
+                .AddFacebook(
+                    options =>
+                    {
+                        Configuration.GetSection("Facebook").Bind(options);
+                    }
+                )
+                .AddMicrosoftAccount(
+                    options =>
+                    {
+                        Configuration.GetSection("Microsoft").Bind(options);
+                    }
+                )
+                .AddGitHub(
+                    options =>
+                    {
+                        Configuration.GetSection("GitHub").Bind(options);
+                    }
+                )
+                .AddTwitter(
+                    options =>
+                    {
+                        Configuration.GetSection("Twitter").Bind(options);
+                    }
+                )
                 .AddOpenIdConnect(options => Configuration.Bind("AzureAd", options));
             ;
             services.ConfigureExternalAuth();
 
             // if you want to secure some controllers/actions within the same project with JWT
             // you need to configure something like the following
-            services.AddAuthentication(o =>
-                {
-                    o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                    o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                }).AddJwtBearer(
+            services
+                .AddAuthentication(
+                    o =>
+                    {
+                        o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                        o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    }
+                )
+                .AddJwtBearer(
                     options =>
                     {
-                        options.Authority =
-                            Configuration.GetSection("Auth")["PublicHost"]; // this is a public host
+                        options.Authority = Configuration.GetSection("Auth")["PublicHost"]; // this is a public host
                         options.RequireHttpsMetadata = false;
                         options.Audience = "local";
-                    })
-                ;
+                    }
+                );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -114,13 +146,14 @@ namespace IdentityOAuthSpaExtensions.Example
             app.UseAuthorization();
             app.UseIdentityServer();
 
-
             app.UseStaticFiles();
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapRazorPages();
-                endpoints.MapControllers();
-            });
+            app.UseEndpoints(
+                endpoints =>
+                {
+                    endpoints.MapRazorPages();
+                    endpoints.MapControllers();
+                }
+            );
         }
     }
 }

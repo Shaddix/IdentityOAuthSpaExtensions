@@ -7,21 +7,24 @@ namespace IdentityOAuthSpaExtensions.Example.Permissions
 {
     public class AuthorizationPolicyProvider : DefaultAuthorizationPolicyProvider
     {
-        public AuthorizationPolicyProvider(IOptions<AuthorizationOptions> options)
-            : base(options)
-        {
-        }
+        public AuthorizationPolicyProvider(IOptions<AuthorizationOptions> options) : base(options)
+        { }
 
         public override Task<AuthorizationPolicy> GetPolicyAsync(string policyName)
         {
-            if (!policyName.StartsWith(PermissionAuthorizeAttribute.PolicyPrefix,
-                StringComparison.OrdinalIgnoreCase))
+            if (
+                !policyName.StartsWith(
+                    PermissionAuthorizeAttribute.PolicyPrefix,
+                    StringComparison.OrdinalIgnoreCase
+                )
+            )
             {
                 return base.GetPolicyAsync(policyName);
             }
 
             var permissionNames = policyName
-                .Substring(PermissionAuthorizeAttribute.PolicyPrefix.Length).Split(',');
+                .Substring(PermissionAuthorizeAttribute.PolicyPrefix.Length)
+                .Split(',');
 
             var policy = new AuthorizationPolicyBuilder()
                 .RequireClaim(ClaimType.Permission, permissionNames)

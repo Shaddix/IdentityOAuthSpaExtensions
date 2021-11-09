@@ -42,15 +42,16 @@ namespace IdentityOAuthSpaExtensions.Services
             Context = context;
             var oAuthCode = context.Request.Raw.Get("code");
             var providerName = context.Request.Raw.Get("provider");
-            if (string.IsNullOrEmpty(oAuthCode)
-                || string.IsNullOrEmpty(providerName))
+            if (string.IsNullOrEmpty(oAuthCode) || string.IsNullOrEmpty(providerName))
             {
                 context.Result = new GrantValidationResult(TokenRequestErrors.InvalidRequest);
                 return;
             }
 
-            var externalUserInfo =
-                await _externalAuthService.GetExternalUserInfo(providerName, oAuthCode);
+            var externalUserInfo = await _externalAuthService.GetExternalUserInfo(
+                providerName,
+                oAuthCode
+            );
 
             if (externalUserInfo == null)
             {
@@ -60,23 +61,24 @@ namespace IdentityOAuthSpaExtensions.Services
 
             try
             {
-                var user = await _userManager.FindByLoginAsync(
-                    providerName,
-                    externalUserInfo.Id);
+                var user = await _userManager.FindByLoginAsync(providerName, externalUserInfo.Id);
                 if (user != null)
                 {
                     context.Result = CreateValidationResultForUser(user);
                 }
                 else
                 {
-                    context.Result =
-                        await CreateResultForLocallyNotFoundUser(providerName, externalUserInfo);
+                    context.Result = await CreateResultForLocallyNotFoundUser(
+                        providerName,
+                        externalUserInfo
+                    );
                 }
             }
             catch (Exception e)
             {
                 _logger.LogError(
-                    $"Exception while authorizing by external provider '{providerName}:{externalUserInfo.Id}', {e}");
+                    $"Exception while authorizing by external provider '{providerName}:{externalUserInfo.Id}', {e}"
+                );
                 context.Result = GetExternalUserNotFound();
             }
         }
@@ -91,7 +93,8 @@ namespace IdentityOAuthSpaExtensions.Services
         /// <returns>GrantValidationResult</returns>
         protected virtual async Task<GrantValidationResult> CreateResultForLocallyNotFoundUser(
             string providerName,
-            ExternalUserInfo externalUserInfo)
+            ExternalUserInfo externalUserInfo
+        )
         {
             if (!_options.CurrentValue.CreateUserIfNotFound)
             {
@@ -106,8 +109,12 @@ namespace IdentityOAuthSpaExtensions.Services
             }
 
             string displayName = GetDisplayName(externalUserInfo);
-            return await AddLoginAndReturnResult(user, providerName, externalUserInfo.Id,
-                displayName);
+            return await AddLoginAndReturnResult(
+                user,
+                providerName,
+                externalUserInfo.Id,
+                displayName
+            );
         }
 
         protected virtual string GetDisplayName(ExternalUserInfo externalUserInfo)
@@ -116,14 +123,17 @@ namespace IdentityOAuthSpaExtensions.Services
         }
 
         /// <summary>Adds external OAuth login to the passed user</summary>
-        protected virtual async Task<GrantValidationResult> AddLoginAndReturnResult(TUser user,
+        protected virtual async Task<GrantValidationResult> AddLoginAndReturnResult(
+            TUser user,
             string providerName,
             string providerId,
-            string displayName = "")
+            string displayName = ""
+        )
         {
-            IdentityResult identityResult =
-                await _userManager.AddLoginAsync(user,
-                    new UserLoginInfo(providerName, providerId, displayName));
+            IdentityResult identityResult = await _userManager.AddLoginAsync(
+                user,
+                new UserLoginInfo(providerName, providerId, displayName)
+            );
             if (!identityResult.Succeeded)
                 throw new Exception("Adding external login failed " + identityResult?.ToString());
             return CreateValidationResultForUser(user);
@@ -137,10 +147,7 @@ namespace IdentityOAuthSpaExtensions.Services
         /// <param name="externalUserInfo">User information from OAuth provider</param>
         protected virtual Task<TUser> CreateNewUser(ExternalUserInfo externalUserInfo)
         {
-            return Task.FromResult(new TUser()
-            {
-                UserName = GetUserName(externalUserInfo),
-            });
+            return Task.FromResult(new TUser() { UserName = GetUserName(externalUserInfo), });
         }
 
         /// <summary>
@@ -157,10 +164,8 @@ namespace IdentityOAuthSpaExtensions.Services
             return new(
                 user.Id.ToString(),
                 GrantType,
-                new[]
-                {
-                    new Claim(JwtClaimTypes.Id, user.Id.ToString())
-                });
+                new[] { new Claim(JwtClaimTypes.Id, user.Id.ToString()) }
+            );
         }
 
         /// <summary>
@@ -170,9 +175,7 @@ namespace IdentityOAuthSpaExtensions.Services
         /// </summary>
         protected virtual GrantValidationResult GetExternalUserNotFound()
         {
-            return new(
-                TokenRequestErrors.UnauthorizedClient,
-                "login_external_UserNotFound");
+            return new(TokenRequestErrors.UnauthorizedClient, "login_external_UserNotFound");
         }
 
         public virtual string GrantType => ExternalAuthExtensions.GrantType;

@@ -19,21 +19,15 @@ namespace IdentityOAuthSpaExtensions.Example.IdentityServer
                         GrantType.ClientCredentials,
                         ExternalAuthExtensions.GrantType
                     },
-                    ClientSecrets =
-                    {
-                        new Secret("secret".Sha256())
-                    },
-                    AllowedScopes = {"api1"}
+                    ClientSecrets = { new Secret("secret".Sha256()) },
+                    AllowedScopes = { "api1" }
                 },
             };
         }
 
         public static IEnumerable<ApiResource> GetApiResources()
         {
-            return new List<ApiResource>
-            {
-                new ApiResource("api1", "My API")
-            };
+            return new List<ApiResource> { new ApiResource("api1", "My API") };
         }
     }
 }

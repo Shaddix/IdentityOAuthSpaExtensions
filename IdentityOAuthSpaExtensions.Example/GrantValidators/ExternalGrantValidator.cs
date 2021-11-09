@@ -10,10 +10,8 @@ namespace IdentityOAuthSpaExtensions.Example.GrantValidators
         public ExternalGrantValidator(
             ExternalAuthService externalAuthService,
             UserManager<IdentityUser> userManager,
-            IOptionsMonitor<ExternalAuthOptions> options, 
-            ILogger<ExternalAuthenticationGrantValidator<IdentityUser, string>> logger)
-            : base(externalAuthService, userManager, options, logger)
-        {
-        }
+            IOptionsMonitor<ExternalAuthOptions> options,
+            ILogger<ExternalAuthenticationGrantValidator<IdentityUser, string>> logger
+        ) : base(externalAuthService, userManager, options, logger) { }
     }
 }

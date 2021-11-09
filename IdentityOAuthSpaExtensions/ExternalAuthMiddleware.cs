@@ -71,9 +71,12 @@ namespace IdentityOAuthSpaExtensions
                 return;
             }
 
-            if (_callbackPathToProviderNameDictionary.TryGetValue(
-                request.Path.ToString(),
-                out string providerName))
+            if (
+                _callbackPathToProviderNameDictionary.TryGetValue(
+                    request.Path.ToString(),
+                    out string providerName
+                )
+            )
             {
                 if (context.Request.Cookies.ContainsKey(SpaAuthenticationCookieName))
                 {
@@ -94,9 +97,13 @@ namespace IdentityOAuthSpaExtensions
 
             var challengeResult = new ChallengeResult(provider, null);
 
-            await challengeResult.ExecuteResultAsync(new ActionContext(context,
-                new RouteData(context.Request.RouteValues),
-                new ActionDescriptor()));
+            await challengeResult.ExecuteResultAsync(
+                new ActionContext(
+                    context,
+                    new RouteData(context.Request.RouteValues),
+                    new ActionDescriptor()
+                )
+            );
 
             AdjustPathInCookies(context);
         }
@@ -114,9 +121,10 @@ namespace IdentityOAuthSpaExtensions
         private string GetCallbackPath(HttpContext context, string provider)
         {
             string lowCaseProvider = provider.ToLowerInvariant();
-            IOptionsMonitor<AuthenticationOptions> authenticationOptionsMonitor = context
-                .RequestServices
-                .GetRequiredService<IOptionsMonitor<AuthenticationOptions>>();
+            IOptionsMonitor<AuthenticationOptions> authenticationOptionsMonitor =
+                context.RequestServices.GetRequiredService<
+                    IOptionsMonitor<AuthenticationOptions>
+                >();
             List<AuthenticationSchemeBuilder> schemes =
                 authenticationOptionsMonitor.CurrentValue.Schemes.ToList();
             AuthenticationSchemeBuilder authenticationScheme;
@@ -127,12 +135,13 @@ namespace IdentityOAuthSpaExtensions
             catch (Exception e)
             {
                 throw new InvalidOperationException(
-                    $"Provider with name '{provider}' wasn't found among registered providers. Check spelling, or check that you added the provider.");
+                    $"Provider with name '{provider}' wasn't found among registered providers. Check spelling, or check that you added the provider."
+                );
             }
 
             IAuthenticationHandler handler =
-                context.RequestServices.GetRequiredService(authenticationScheme.HandlerType) as
-                    IAuthenticationHandler;
+                context.RequestServices.GetRequiredService(authenticationScheme.HandlerType)
+                as IAuthenticationHandler;
             var options = handler.GetOptions();
             return options.CallbackPath.ToString();
         }
@@ -144,9 +153,9 @@ namespace IdentityOAuthSpaExtensions
             if (string.IsNullOrEmpty(_oauthHtmlContent))
             {
                 var assembly = GetType().Assembly;
-                var resourceStream =
-                    assembly.GetManifestResourceStream(
-                        "IdentityOAuthSpaExtensions.oauth-result.html");
+                var resourceStream = assembly.GetManifestResourceStream(
+                    "IdentityOAuthSpaExtensions.oauth-result.html"
+                );
                 _oauthHtmlContent = new StreamReader(resourceStream).ReadToEnd();
             }
 
@@ -163,8 +172,10 @@ namespace IdentityOAuthSpaExtensions
             }
 
             var returnUrl =
-                context.Request.Scheme + "://" +
-                context.Request.Host + "/external-auth/oauth-result";
+                context.Request.Scheme
+                + "://"
+                + context.Request.Host
+                + "/external-auth/oauth-result";
             var encodedBody = HttpUtility.UrlEncode(body);
             context.Response.Redirect(returnUrl + $"#provider={provider}&code=" + encodedBody);
         }
@@ -180,14 +191,16 @@ namespace IdentityOAuthSpaExtensions
                 newCookies.Add(cookie.ToString());
             }
 
-            var cookieToRedirectToOauthResult =
-                new SetCookieHeaderValue(SpaAuthenticationCookieName, "1")
-                {
-                    Path = "/"
-                };
+            var cookieToRedirectToOauthResult = new SetCookieHeaderValue(
+                SpaAuthenticationCookieName,
+                "1"
+            ) {
+                Path = "/"
+            };
             newCookies.Add(cookieToRedirectToOauthResult.ToString());
-            context.Response.Headers[HeaderNames.SetCookie] =
-                new StringValues(newCookies.ToArray());
+            context.Response.Headers[HeaderNames.SetCookie] = new StringValues(
+                newCookies.ToArray()
+            );
         }
     }
 }

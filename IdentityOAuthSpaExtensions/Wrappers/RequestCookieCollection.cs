@@ -7,8 +7,7 @@ namespace IdentityOAuthSpaExtensions.Wrappers
     internal class RequestCookieCollection : Dictionary<string, string>, IRequestCookieCollection
     {
         public RequestCookieCollection(IDictionary<string, string> dictionary) : base(dictionary)
-        {
-        }
+        { }
 
         public new ICollection<string> Keys => base.Keys.ToList();
     }

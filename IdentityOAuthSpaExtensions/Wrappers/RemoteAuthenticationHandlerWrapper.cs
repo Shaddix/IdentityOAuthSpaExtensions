@@ -17,8 +17,10 @@ namespace IdentityOAuthSpaExtensions.Wrappers
         private readonly RemoteAuthenticationHandler<TOptions> _authHandler;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public RemoteAuthenticationHandlerWrapper(RemoteAuthenticationHandler<TOptions> authHandler,
-            IHttpContextAccessor httpContextAccessor)
+        public RemoteAuthenticationHandlerWrapper(
+            RemoteAuthenticationHandler<TOptions> authHandler,
+            IHttpContextAccessor httpContextAccessor
+        )
         {
             _authHandler = authHandler;
             _httpContextAccessor = httpContextAccessor;
@@ -26,15 +28,20 @@ namespace IdentityOAuthSpaExtensions.Wrappers
 
         public async Task<HandleRequestResult> HandleRemoteAuthenticateAsync()
         {
-            var method = _authHandler.GetType()
-                .GetMethod("HandleRemoteAuthenticateAsync",
-                    BindingFlags.NonPublic | BindingFlags.Instance);
-            var result = (Task<HandleRequestResult>) method.Invoke(_authHandler, new object[] { });
+            var method = _authHandler
+                .GetType()
+                .GetMethod(
+                    "HandleRemoteAuthenticateAsync",
+                    BindingFlags.NonPublic | BindingFlags.Instance
+                );
+            var result = (Task<HandleRequestResult>)method.Invoke(_authHandler, new object[] {  });
             return await result;
         }
 
-        public virtual async Task<AuthenticationTicket> GetTicket(string code,
-            string absoluteCallbackUri)
+        public virtual async Task<AuthenticationTicket> GetTicket(
+            string code,
+            string absoluteCallbackUri
+        )
         {
             StubRequest(code);
             var result = await HandleRemoteAuthenticateAsync();
@@ -52,8 +59,7 @@ namespace IdentityOAuthSpaExtensions.Wrappers
 
             var context = new DefaultHttpContext();
             var request = context.Request;
-            var cookies =
-                currentRequest.Cookies.ToDictionary(x => x.Key, x => x.Value);
+            var cookies = currentRequest.Cookies.ToDictionary(x => x.Key, x => x.Value);
             request.Cookies = new RequestCookieCollection(cookies);
             request.Host = currentRequest.Host;
             request.Scheme = currentRequest.Scheme;
@@ -68,10 +74,13 @@ namespace IdentityOAuthSpaExtensions.Wrappers
                 request.Method = "POST";
                 request.ContentType = "application/x-www-form-urlencoded";
 
-                NameValueCollection formDataNameValueCollection =
-                    HttpUtility.ParseQueryString(body);
-                Dictionary<string, StringValues> formDataDictionary =
-                    new Dictionary<string, StringValues>();
+                NameValueCollection formDataNameValueCollection = HttpUtility.ParseQueryString(
+                    body
+                );
+                Dictionary<string, StringValues> formDataDictionary = new Dictionary<
+                    string,
+                    StringValues
+                >();
                 foreach (string key in formDataNameValueCollection.AllKeys)
                 {
                     formDataDictionary[key] = formDataNameValueCollection[key];
