@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using Duende.IdentityServer.Models;
 using IdentityOAuthSpaExtensions.Services;
-using IdentityServer4.Models;
 
 namespace IdentityOAuthSpaExtensions.Example.IdentityServer
 {

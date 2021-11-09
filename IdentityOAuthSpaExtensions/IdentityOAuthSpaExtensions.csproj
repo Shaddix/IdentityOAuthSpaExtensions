@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageVersion>1.0.6</PackageVersion>
         <Title>IdentityOAuthSpaExtensions</Title>
@@ -19,9 +19,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="5.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="5.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="5.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="6.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="6.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="6.0.0" />
     </ItemGroup>
 
     <ItemGroup>

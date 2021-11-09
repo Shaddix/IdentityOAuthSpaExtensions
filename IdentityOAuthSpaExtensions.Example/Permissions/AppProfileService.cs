@@ -1,9 +1,7 @@
 using System.Security.Claims;
 using System.Threading.Tasks;
-using IdentityModel;
-using IdentityServer4.AspNetIdentity;
-using IdentityServer4.Extensions;
-using IdentityServer4.Models;
+using Duende.IdentityServer.AspNetIdentity;
+using Duende.IdentityServer.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 
