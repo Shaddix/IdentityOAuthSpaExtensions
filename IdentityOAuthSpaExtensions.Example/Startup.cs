@@ -1,6 +1,6 @@
-﻿using IdentityOAuthSpaExtensions.Example.Permissions;
+﻿using Duende.IdentityServer.Services;
+using IdentityOAuthSpaExtensions.Example.Permissions;
 using IdentityOAuthSpaExtensions.Services;
-using IdentityServer4.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

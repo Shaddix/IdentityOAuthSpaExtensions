@@ -343,3 +343,12 @@ healthchecksdb
 
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
+
+# User-specific stuff
+**/.idea/**/workspace.xml
+**/.idea/**/tasks.xml
+**/.idea/**/usage.statistics.xml
+**/.idea/**/dictionaries
+**/.idea/**/shelf
+
+/IdentityOAuthSpaExtensions.Example/keys
