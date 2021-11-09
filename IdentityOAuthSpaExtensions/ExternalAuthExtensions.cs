@@ -23,7 +23,8 @@ namespace IdentityOAuthSpaExtensions
         /// </summary>
         public static void ConfigureExternalAuth(
             this IServiceCollection services,
-            Action<ExternalAuthOptions> configureOptions = null)
+            Action<ExternalAuthOptions> configureOptions = null
+        )
         {
             services.Configure<ExternalAuthOptions>(configureOptions ?? (options => { }));
             services.AddTransient<ExternalAuthService>();

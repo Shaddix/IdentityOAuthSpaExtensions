@@ -21,7 +21,7 @@ namespace IdentityOAuthSpaExtensions.Example.Controllers
         [PermissionAuthorize(Permission.DocumentManagement)]
         public ActionResult<IEnumerable<string>> GetDocuments()
         {
-            return new string[] {"doc1", "doc2"};
+            return new string[] { "doc1", "doc2" };
         }
 
         [HttpGet("users")]
@@ -29,7 +29,7 @@ namespace IdentityOAuthSpaExtensions.Example.Controllers
         [PermissionAuthorize(Permission.UserManagement)]
         public ActionResult<IEnumerable<string>> GetUsers()
         {
-            return new string[] {"user1", "user2"};
+            return new string[] { "user1", "user2" };
         }
     }
 }

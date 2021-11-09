@@ -14,16 +14,16 @@ namespace IdentityOAuthSpaExtensions.Example.Permissions
         public AppProfileService(
             UserManager<IdentityUser> userManager,
             IUserClaimsPrincipalFactory<IdentityUser> claimsFactory,
-            ILogger<ProfileService<IdentityUser>> logger) : base(userManager, claimsFactory, logger)
-        {
-        }
+            ILogger<ProfileService<IdentityUser>> logger
+        ) : base(userManager, claimsFactory, logger) { }
 
         public override async Task GetProfileDataAsync(ProfileDataRequestContext context)
         {
             await base.GetProfileDataAsync(context);
 
-            context.IssuedClaims.Add(new Claim(ClaimType.Permission,
-                Permission.UserManagement.ToString()));
+            context.IssuedClaims.Add(
+                new Claim(ClaimType.Permission, Permission.UserManagement.ToString())
+            );
         }
     }
 }

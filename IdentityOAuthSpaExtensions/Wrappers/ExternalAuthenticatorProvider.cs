@@ -14,7 +14,8 @@ namespace IdentityOAuthSpaExtensions.Wrappers
 
         public ExternalAuthenticatorProvider(
             IHttpContextAccessor httpContextAccessor,
-            IOptionsMonitor<AuthenticationOptions> authenticationOptionsMonitor)
+            IOptionsMonitor<AuthenticationOptions> authenticationOptionsMonitor
+        )
         {
             _httpContextAccessor = httpContextAccessor;
             _authenticationOptionsMonitor = authenticationOptionsMonitor;
@@ -28,7 +29,8 @@ namespace IdentityOAuthSpaExtensions.Wrappers
             if (scheme == null)
             {
                 throw new InvalidOperationException(
-                    $"Auth Provider for '{providerName}' was not found");
+                    $"Auth Provider for '{providerName}' was not found"
+                );
             }
 
             var httpContext = _httpContextAccessor.HttpContext;
@@ -36,9 +38,7 @@ namespace IdentityOAuthSpaExtensions.Wrappers
 
             if (provider is IAuthenticationHandler authHandler)
             {
-                await authHandler.InitializeAsync(
-                    scheme.Build(),
-                    httpContext);
+                await authHandler.InitializeAsync(scheme.Build(), httpContext);
 
                 if (provider is PolicySchemeHandler policySchemeHandler)
                 {
@@ -50,33 +50,40 @@ namespace IdentityOAuthSpaExtensions.Wrappers
 
                 if (IsRemoteAuthenticationHandler(authHandler))
                 {
-                    var options = ((dynamic) authHandler).Options as AuthenticationSchemeOptions;
+                    var options = ((dynamic)authHandler).Options as AuthenticationSchemeOptions;
                     if (options == null)
                     {
                         throw new InvalidOperationException(
-                            $"Auth Provider Options property is null.");
+                            $"Auth Provider Options property is null."
+                        );
                     }
 
-                    Type wrapperType = typeof(RemoteAuthenticationHandlerWrapper<>)
-                        .MakeGenericType(new[] {options.GetType()});
-                    var handlerWrapper =
-                        Activator.CreateInstance(wrapperType,
-                            new object[] {authHandler, _httpContextAccessor});
-                    return (IExternalAuthenticationWrapper) handlerWrapper;
+                    Type wrapperType = typeof(RemoteAuthenticationHandlerWrapper<>).MakeGenericType(
+                        new[] { options.GetType() }
+                    );
+                    var handlerWrapper = Activator.CreateInstance(
+                        wrapperType,
+                        new object[] { authHandler, _httpContextAccessor }
+                    );
+                    return (IExternalAuthenticationWrapper)handlerWrapper;
                 }
 
                 throw new InvalidOperationException(
-                    $"Auth Provider is of invalid type '{provider.GetType()}'. Only RemoteAuthenticationHandler providers are supported");
+                    $"Auth Provider is of invalid type '{provider.GetType()}'. Only RemoteAuthenticationHandler providers are supported"
+                );
             }
 
             throw new InvalidOperationException(
-                $"Auth Provider is of invalid type '{provider.GetType()}'. Only IAuthenticationHandler providers are supported");
+                $"Auth Provider is of invalid type '{provider.GetType()}'. Only IAuthenticationHandler providers are supported"
+            );
         }
 
         private bool IsRemoteAuthenticationHandler(IAuthenticationHandler provider)
         {
-            return IsDescendantOf(provider,
-                "Microsoft.AspNetCore.Authentication.RemoteAuthenticationHandler");
+            return IsDescendantOf(
+                provider,
+                "Microsoft.AspNetCore.Authentication.RemoteAuthenticationHandler"
+            );
         }
 
         private bool IsDescendantOf(object obj, string typeName)
